@@ -80,15 +80,40 @@ export default function CartPage() {
                 </div>
 
                 <div className="mt-auto flex items-center justify-between pt-3">
-                  {/* Quantity stepper */}
+                  {/* Quantity stepper. At qty 1, "−" removes the item. */}
                   <div className="inline-flex items-center rounded-full border border-cream-300">
                     <button
                       type="button"
-                      onClick={() => setQuantity(product.id, quantity - 1)}
-                      aria-label={`Decrease ${product.name} quantity`}
-                      className="flex h-9 w-9 items-center justify-center rounded-full text-lg text-espresso-800 hover:text-gold-600"
+                      onClick={() =>
+                        quantity <= 1
+                          ? removeItem(product.id)
+                          : setQuantity(product.id, quantity - 1)
+                      }
+                      aria-label={
+                        quantity <= 1
+                          ? `Remove ${product.name} from cart`
+                          : `Decrease ${product.name} quantity`
+                      }
+                      title={quantity <= 1 ? "Remove item" : "Decrease quantity"}
+                      className={`flex h-9 w-9 items-center justify-center rounded-full text-lg transition-colors ${
+                        quantity <= 1
+                          ? "text-espresso-500 hover:text-red-600"
+                          : "text-espresso-800 hover:text-gold-600"
+                      }`}
                     >
-                      −
+                      {quantity <= 1 ? (
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                          <path
+                            d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"
+                            stroke="currentColor"
+                            strokeWidth="1.8"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      ) : (
+                        "−"
+                      )}
                     </button>
                     <span className="w-8 text-center text-sm font-medium">
                       {quantity}
