@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
+import { Footer } from "@/components/Footer";
+import { Navbar } from "@/components/Navbar";
+
 /**
  * Brand typography, loaded & self-hosted by next/font (zero layout shift).
  * - Playfair Display → elegant serif for headings
@@ -47,7 +50,9 @@ export default function RootLayout({
       className={`${playfair.variable} ${inter.variable} h-full scroll-smooth`}
     >
       <body className="flex min-h-full flex-col bg-cream-100 text-espresso-900">
-        {children}
+        <Navbar />
+        <div className="flex-1">{children}</div>
+        <Footer />
       </body>
     </html>
   );

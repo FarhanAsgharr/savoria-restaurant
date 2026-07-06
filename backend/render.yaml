@@ -1,0 +1,36 @@
+# Render Blueprint — one-click deploy of the API + PostgreSQL.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: savoria-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn config.wsgi:application"
+    healthCheckPath: /healthz/
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.13
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: SECURE_SSL_REDIRECT
+        value: "True"
+      # Set ALLOWED_HOSTS / CORS_ALLOWED_ORIGINS / CSRF_TRUSTED_ORIGINS to your
+      # Render + Vercel domains after the first deploy.
+      - key: ALLOWED_HOSTS
+        sync: false
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: CSRF_TRUSTED_ORIGINS
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: savoria-db
+          property: connectionString
+
+databases:
+  - name: savoria-db
+    plan: free
