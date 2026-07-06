@@ -14,8 +14,8 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from .forms import PhoneResetRequestForm, SetNewPasswordForm
-from .models import PhoneResetCode, StaffProfile
-from .utils import generate_code
+from .models import PhoneResetCode
+from .utils import find_profile_by_phone, generate_code
 from .whatsapp import send_whatsapp_code
 
 User = get_user_model()
@@ -30,11 +30,7 @@ def request_code(request):
         form = PhoneResetRequestForm(request.POST)
         if form.is_valid():
             phone = form.cleaned_data["phone"]
-            profile = (
-                StaffProfile.objects.select_related("user")
-                .filter(phone=phone)
-                .first()
-            )
+            profile = find_profile_by_phone(phone)
             if profile and profile.user.is_active:
                 user = profile.user
                 # Invalidate any outstanding codes, then issue a fresh one.
