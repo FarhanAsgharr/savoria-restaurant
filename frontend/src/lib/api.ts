@@ -14,16 +14,21 @@ import type {
   Paginated,
 } from "@/types";
 
-// Browser calls use the public URL (works from any network / a demo tunnel).
-const PUBLIC_API_URL =
-  process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000/api";
+// Browser → the site's own /api path, proxied to the backend by the route
+// handler (app/api/[...path]). Same-origin everywhere: no CORS, no public
+// backend URL, unaffected by any DNS blocking.
+const BROWSER_API_URL = process.env.NEXT_PUBLIC_API_URL ?? "/api";
 
-// Server-side rendering runs on the host machine, so it talks to the backend
-// directly (localhost) — fast and independent of any public-DNS routing.
+// Server-side rendering talks to the backend directly. In production set
+// BACKEND_ORIGIN (e.g. https://savoria-api.onrender.com); locally it defaults
+// to the dev server.
+const backendOrigin = process.env.BACKEND_ORIGIN;
+const SERVER_API_URL =
+  process.env.INTERNAL_API_URL ??
+  (backendOrigin ? `${backendOrigin}/api` : "http://127.0.0.1:8000/api");
+
 const API_URL =
-  typeof window === "undefined"
-    ? (process.env.INTERNAL_API_URL ?? PUBLIC_API_URL)
-    : PUBLIC_API_URL;
+  typeof window === "undefined" ? SERVER_API_URL : BROWSER_API_URL;
 
 /** Thrown for any non-2xx API response so callers can render error states. */
 export class ApiError extends Error {

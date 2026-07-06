@@ -191,6 +191,13 @@ CORS_ALLOWED_ORIGIN_REGEXES = env(
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 
+# On Render, the external hostname is injected automatically — trust it for
+# host validation and admin CSRF without any manual configuration.
+RENDER_EXTERNAL_HOSTNAME = env("RENDER_EXTERNAL_HOSTNAME", default=None)
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
+
 # ─────────────────────────────────────────────────────────────
 # Frontend & email
 # ─────────────────────────────────────────────────────────────
