@@ -37,3 +37,36 @@ export interface OrderItemInput {
   menu_item: number;
   quantity: number;
 }
+
+/** The subset of a MenuItem we persist in the cart (localStorage). */
+export type CartProduct = Pick<
+  MenuItem,
+  "id" | "name" | "slug" | "price" | "image" | "category_slug" | "category_name"
+>;
+
+/** A cart line: a product plus its chosen quantity. */
+export interface CartLine {
+  product: CartProduct;
+  quantity: number;
+}
+
+/** Read shape of an order returned by GET /api/orders/<id>/. */
+export interface OrderConfirmation {
+  id: number;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  address: string;
+  notes: string;
+  status: string;
+  total_amount: string;
+  created_at: string;
+  order_items: {
+    id: number;
+    menu_item: number;
+    menu_item_name: string;
+    quantity: number;
+    unit_price: string;
+    subtotal: string;
+  }[];
+}

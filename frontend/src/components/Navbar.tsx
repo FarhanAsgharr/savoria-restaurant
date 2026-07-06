@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { CartButton } from "@/components/CartButton";
+
 const LINKS = [
   { href: "/", label: "Home" },
   { href: "/menu", label: "Menu" },
@@ -68,21 +70,21 @@ export function Navbar() {
             );
           })}
           <li>
-            <Link href="/menu" className="btn-primary !px-5 !py-2 text-sm">
-              Order Now
-            </Link>
+            <CartButton />
           </li>
         </ul>
 
-        {/* Mobile toggle */}
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-md p-2 text-espresso-900 md:hidden"
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          aria-label="Toggle navigation menu"
-          onClick={() => setOpen((v) => !v)}
-        >
+        {/* Mobile: cart + toggle */}
+        <div className="flex items-center gap-1 md:hidden">
+          <CartButton />
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-md p-2 text-espresso-900"
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            aria-label="Toggle navigation menu"
+            onClick={() => setOpen((v) => !v)}
+          >
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             {open ? (
               <path
@@ -100,7 +102,8 @@ export function Navbar() {
               />
             )}
           </svg>
-        </button>
+          </button>
+        </div>
       </nav>
 
       {/* Mobile drawer */}

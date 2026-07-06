@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
+import { Providers } from "@/components/Providers";
 
 /**
  * Brand typography, loaded & self-hosted by next/font (zero layout shift).
@@ -50,9 +51,11 @@ export default function RootLayout({
       className={`${playfair.variable} ${inter.variable} h-full scroll-smooth`}
     >
       <body className="flex min-h-full flex-col bg-cream-100 text-espresso-900">
-        <Navbar />
-        <div className="flex-1">{children}</div>
-        <Footer />
+        <Providers>
+          <Navbar />
+          <div className="flex-1">{children}</div>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

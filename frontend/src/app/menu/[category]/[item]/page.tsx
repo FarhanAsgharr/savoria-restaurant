@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AddToCartButton } from "@/components/AddToCartButton";
 import { DishImage } from "@/components/DishImage";
 import { FoodCard } from "@/components/FoodCard";
 import { SectionHeading } from "@/components/states";
@@ -114,15 +115,30 @@ export default async function ItemPage({ params }: { params: Params }) {
             </p>
           )}
 
-          {/* Ordering (cart) is implemented in Phase 2. */}
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <Link href={`/menu/${item.category_slug}`} className="btn-secondary">
+          {/* Add to cart */}
+          <div className="mt-8">
+            <AddToCartButton
+              product={{
+                id: item.id,
+                name: item.name,
+                slug: item.slug,
+                price: item.price,
+                image: item.image,
+                category_slug: item.category_slug,
+                category_name: item.category_name,
+              }}
+              available={item.is_available}
+              variant="full"
+            />
+          </div>
+          <div className="mt-6">
+            <Link
+              href={`/menu/${item.category_slug}`}
+              className="text-sm text-espresso-500 hover:text-gold-600"
+            >
               ← Back to {item.category_name}
             </Link>
           </div>
-          <p className="mt-4 text-sm text-espresso-400">
-            Online ordering launches in Phase 2.
-          </p>
         </div>
       </div>
 

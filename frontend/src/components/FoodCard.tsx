@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { AddToCartButton } from "@/components/AddToCartButton";
 import { DishImage } from "@/components/DishImage";
 import { formatPrice } from "@/lib/format";
 import type { MenuItem } from "@/types";
@@ -33,7 +34,7 @@ export function FoodCard({ item }: { item: MenuItem }) {
           )}
         </div>
 
-        <div className="p-5">
+        <div className="p-5 pb-3">
           <p className="text-xs font-medium uppercase tracking-wider text-gold-600">
             {item.category_name}
           </p>
@@ -50,6 +51,23 @@ export function FoodCard({ item }: { item: MenuItem }) {
           </p>
         </div>
       </Link>
+
+      {/* Quick-add sits outside the Link so it doesn't trigger navigation. */}
+      <div className="flex items-center justify-end px-5 pb-5">
+        <AddToCartButton
+          product={{
+            id: item.id,
+            name: item.name,
+            slug: item.slug,
+            price: item.price,
+            image: item.image,
+            category_slug: item.category_slug,
+            category_name: item.category_name,
+          }}
+          available={item.is_available}
+          variant="compact"
+        />
+      </div>
     </article>
   );
 }

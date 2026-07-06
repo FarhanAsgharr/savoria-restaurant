@@ -9,6 +9,7 @@
 import type {
   Category,
   MenuItem,
+  OrderConfirmation,
   OrderItemInput,
   Paginated,
 } from "@/types";
@@ -114,10 +115,16 @@ export interface CreateOrderPayload {
   items: OrderItemInput[];
 }
 
-export function createOrder(payload: CreateOrderPayload) {
-  return request("/orders/", {
+export function createOrder(
+  payload: CreateOrderPayload,
+): Promise<OrderConfirmation> {
+  return request<OrderConfirmation>("/orders/", {
     method: "POST",
     body: JSON.stringify(payload),
     revalidate: 0, // never cache a mutation
   });
+}
+
+export function getOrder(id: number | string): Promise<OrderConfirmation> {
+  return request<OrderConfirmation>(`/orders/${id}/`, { revalidate: 0 });
 }
