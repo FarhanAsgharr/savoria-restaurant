@@ -61,10 +61,7 @@ export default async function ItemPage({ params }: { params: Params }) {
           Menu
         </Link>
         <span className="mx-2">/</span>
-        <Link
-          href={`/menu/${item.category_slug}`}
-          className="hover:text-gold-600"
-        >
+        <Link href={`/menu/${item.category_slug}`} className="hover:text-gold-600">
           {item.category_name}
         </Link>
         <span className="mx-2">/</span>
@@ -110,9 +107,7 @@ export default async function ItemPage({ params }: { params: Params }) {
           </span>
 
           {item.description && (
-            <p className="mt-6 leading-relaxed text-espresso-600">
-              {item.description}
-            </p>
+            <p className="mt-6 leading-relaxed text-espresso-600">{item.description}</p>
           )}
 
           {/* Add to cart */}
@@ -134,7 +129,7 @@ export default async function ItemPage({ params }: { params: Params }) {
           <div className="mt-6">
             <Link
               href={`/menu/${item.category_slug}`}
-              className="text-sm text-espresso-500 hover:text-gold-600"
+              className="text-espresso-500 text-sm hover:text-gold-600"
             >
               ← Back to {item.category_name}
             </Link>

@@ -9,7 +9,7 @@ export default function MenuLoading() {
         title="Every dish, one place"
         description="Filter by category or search for your favourite dish."
       />
-      <div className="mt-8 h-12 w-full max-w-md skeleton rounded-full" />
+      <div className="skeleton mt-8 h-12 w-full max-w-md rounded-full" />
       <div className="mt-10">
         <FoodGridSkeleton count={6} />
       </div>

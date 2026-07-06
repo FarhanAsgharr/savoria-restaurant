@@ -44,9 +44,7 @@ export function EmptyState({
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-cream-200 text-2xl">
         🍽️
       </div>
-      <h3 className="mt-4 font-serif text-xl font-semibold text-espresso-900">
-        {title}
-      </h3>
+      <h3 className="mt-4 font-serif text-xl font-semibold text-espresso-900">{title}</h3>
       <p className="mt-2 max-w-sm text-sm text-espresso-600">{message}</p>
       {actionHref && actionLabel && (
         <Link href={actionHref} className="btn-secondary mt-6 text-sm">

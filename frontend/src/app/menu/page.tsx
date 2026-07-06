@@ -16,11 +16,7 @@ export const metadata: Metadata = {
 /** In Next 15, `searchParams` is a Promise and must be awaited. */
 type SearchParams = Promise<{ category?: string; search?: string; ordering?: string }>;
 
-export default async function MenuPage({
-  searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+export default async function MenuPage({ searchParams }: { searchParams: SearchParams }) {
   const { category, search, ordering } = await searchParams;
 
   const [categoriesRes, itemsRes] = await Promise.allSettled([

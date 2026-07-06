@@ -27,8 +27,7 @@ const SERVER_API_URL =
   process.env.INTERNAL_API_URL ??
   (backendOrigin ? `${backendOrigin}/api` : "http://127.0.0.1:8000/api");
 
-const API_URL =
-  typeof window === "undefined" ? SERVER_API_URL : BROWSER_API_URL;
+const API_URL = typeof window === "undefined" ? SERVER_API_URL : BROWSER_API_URL;
 
 /** Thrown for any non-2xx API response so callers can render error states. */
 export class ApiError extends Error {
@@ -105,9 +104,7 @@ export interface MenuItemQuery extends QueryParams {
   page_size?: number;
 }
 
-export function getMenuItems(
-  query: MenuItemQuery = {},
-): Promise<Paginated<MenuItem>> {
+export function getMenuItems(query: MenuItemQuery = {}): Promise<Paginated<MenuItem>> {
   return request<Paginated<MenuItem>>(`/items/${qs(query)}`);
 }
 
@@ -129,9 +126,7 @@ export interface CreateOrderPayload {
   items: OrderItemInput[];
 }
 
-export function createOrder(
-  payload: CreateOrderPayload,
-): Promise<OrderConfirmation> {
+export function createOrder(payload: CreateOrderPayload): Promise<OrderConfirmation> {
   return request<OrderConfirmation>("/orders/", {
     method: "POST",
     body: JSON.stringify(payload),

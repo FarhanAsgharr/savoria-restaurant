@@ -32,9 +32,7 @@ export function Navbar() {
   return (
     <header
       className={`sticky top-0 z-50 transition-colors duration-300 ${
-        scrolled
-          ? "bg-cream-50/90 shadow-sm backdrop-blur"
-          : "bg-transparent"
+        scrolled ? "bg-cream-50/90 shadow-sm backdrop-blur" : "bg-transparent"
       }`}
     >
       <nav
@@ -54,8 +52,7 @@ export function Navbar() {
             const active =
               link.href === "/"
                 ? pathname === "/"
-                : pathname.startsWith(link.href.split("#")[0]) &&
-                  link.href !== "/#about";
+                : pathname.startsWith(link.href.split("#")[0]) && link.href !== "/#about";
             return (
               <li key={link.href}>
                 <Link
@@ -85,23 +82,29 @@ export function Navbar() {
             aria-label="Toggle navigation menu"
             onClick={() => setOpen((v) => !v)}
           >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            {open ? (
-              <path
-                d="M6 6l12 12M6 18L18 6"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            ) : (
-              <path
-                d="M4 7h16M4 12h16M4 17h16"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-              />
-            )}
-          </svg>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              aria-hidden="true"
+            >
+              {open ? (
+                <path
+                  d="M6 6l12 12M6 18L18 6"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              ) : (
+                <path
+                  d="M4 7h16M4 12h16M4 17h16"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              )}
+            </svg>
           </button>
         </div>
       </nav>

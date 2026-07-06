@@ -12,11 +12,7 @@ export const metadata: Metadata = {
   robots: { index: false }, // order pages should not be indexed
 };
 
-export default async function OrderConfirmationPage({
-  params,
-}: {
-  params: Params;
-}) {
+export default async function OrderConfirmationPage({ params }: { params: Params }) {
   const { id } = await params;
 
   let order;
@@ -40,8 +36,8 @@ export default async function OrderConfirmationPage({
           </h1>
           <p className="mt-3 text-espresso-600">
             Your order{" "}
-            <span className="font-semibold text-espresso-900">#{order.id}</span>{" "}
-            has been received. A confirmation was sent to{" "}
+            <span className="font-semibold text-espresso-900">#{order.id}</span> has been
+            received. A confirmation was sent to{" "}
             <span className="font-medium">{order.customer_email}</span>.
           </p>
           <span className="mt-4 inline-flex items-center gap-2 rounded-full bg-gold-100 px-4 py-1.5 text-sm font-medium capitalize text-gold-700">

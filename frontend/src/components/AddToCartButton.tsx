@@ -88,7 +88,11 @@ export function AddToCartButton({
         </button>
       </div>
 
-      <button type="button" onClick={handleAdd} className="btn-primary flex-1 sm:flex-none">
+      <button
+        type="button"
+        onClick={handleAdd}
+        className="btn-primary flex-1 sm:flex-none"
+      >
         {justAdded ? "Added to cart ✓" : "Add to cart"}
       </button>
     </div>

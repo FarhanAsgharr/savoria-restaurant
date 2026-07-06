@@ -11,14 +11,12 @@ from menu.models import Category, MenuItem, Order
 class CategoryAPITests(APITestCase):
     def setUp(self):
         self.active = Category.objects.create(name="Starters", display_order=1)
-        self.inactive = Category.objects.create(
-            name="Hidden", display_order=2, is_active=False
-        )
+        self.inactive = Category.objects.create(name="Hidden", display_order=2, is_active=False)
+        MenuItem.objects.create(category=self.active, name="Soup", price=Decimal("6.00"))
         MenuItem.objects.create(
-            category=self.active, name="Soup", price=Decimal("6.00")
-        )
-        MenuItem.objects.create(
-            category=self.active, name="Off menu", price=Decimal("6.00"),
+            category=self.active,
+            name="Off menu",
+            price=Decimal("6.00"),
             is_available=False,
         )
 
@@ -55,7 +53,9 @@ class MenuItemAPITests(APITestCase):
             category=self.mains, name="Lobster", price=Decimal("45.00")
         )
         self.sold_out = MenuItem.objects.create(
-            category=self.mains, name="Truffle Pasta", price=Decimal("30.00"),
+            category=self.mains,
+            name="Truffle Pasta",
+            price=Decimal("30.00"),
             is_available=False,
         )
 
@@ -101,7 +101,9 @@ class OrderAPITests(APITestCase):
             category=self.category, name="Fish", price=Decimal("20.00")
         )
         self.unavailable = MenuItem.objects.create(
-            category=self.category, name="Special", price=Decimal("50.00"),
+            category=self.category,
+            name="Special",
+            price=Decimal("50.00"),
             is_available=False,
         )
 

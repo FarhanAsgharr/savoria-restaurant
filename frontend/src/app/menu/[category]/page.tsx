@@ -28,8 +28,7 @@ export async function generateMetadata({
     const category = await getCategory(slug);
     return {
       title: category.name,
-      description:
-        category.description || `Explore our ${category.name} at Savoria.`,
+      description: category.description || `Explore our ${category.name} at Savoria.`,
     };
   } catch {
     return { title: "Category" };

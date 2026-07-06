@@ -1,0 +1,18 @@
+# Tooling config for the backend: Black (formatter) + Ruff (linter/imports).
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+extend-exclude = "migrations"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+# E/W: pycodestyle, F: pyflakes, I: isort, B: bugbear, UP: pyupgrade
+select = ["E", "W", "F", "I", "B", "UP"]
+ignore = ["E501"]  # line length is enforced by Black
+
+[tool.ruff.lint.per-file-ignores]
+"settings.py" = ["F405"]

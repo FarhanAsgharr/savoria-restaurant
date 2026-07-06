@@ -1,0 +1,5 @@
+# Development-only tooling (not needed in production).
+-r requirements.txt
+
+black==24.10.0        # Code formatter
+ruff==0.8.4           # Fast linter + import sorter

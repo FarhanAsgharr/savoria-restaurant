@@ -87,9 +87,7 @@ def _send_meta(phone: str, code: str) -> dict:
             ],
         },
     }
-    req = urllib.request.Request(
-        url, data=json.dumps(payload).encode(), method="POST"
-    )
+    req = urllib.request.Request(url, data=json.dumps(payload).encode(), method="POST")
     req.add_header("Authorization", f"Bearer {token}")
     req.add_header("Content-Type", "application/json")
     with urllib.request.urlopen(req, timeout=15) as resp:

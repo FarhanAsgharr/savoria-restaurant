@@ -16,10 +16,10 @@ export default function CartPage() {
   if (!hydrated) {
     return (
       <main className="container-page py-14">
-        <div className="h-10 w-48 skeleton rounded" />
+        <div className="skeleton h-10 w-48 rounded" />
         <div className="mt-8 space-y-4">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="h-28 w-full skeleton rounded-2xl" />
+            <div key={i} className="skeleton h-28 w-full rounded-2xl" />
           ))}
         </div>
       </main>
@@ -44,7 +44,10 @@ export default function CartPage() {
 
   return (
     <main className="container-page py-14">
-      <SectionHeading title="Your cart" description={`${totalQuantity} item${totalQuantity === 1 ? "" : "s"} ready to order.`} />
+      <SectionHeading
+        title="Your cart"
+        description={`${totalQuantity} item${totalQuantity === 1 ? "" : "s"} ready to order.`}
+      />
 
       <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_360px]">
         {/* Line items */}
@@ -102,7 +105,13 @@ export default function CartPage() {
                       }`}
                     >
                       {quantity <= 1 ? (
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          aria-hidden="true"
+                        >
                           <path
                             d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"
                             stroke="currentColor"
@@ -131,7 +140,7 @@ export default function CartPage() {
                   <button
                     type="button"
                     onClick={() => removeItem(product.id)}
-                    className="text-sm text-espresso-500 hover:text-red-600"
+                    className="text-espresso-500 text-sm hover:text-red-600"
                   >
                     Remove
                   </button>
@@ -158,10 +167,7 @@ export default function CartPage() {
             <span>Total</span>
             <span>{formatPrice(totalAmount)}</span>
           </div>
-          <Link
-            href="/checkout"
-            className="btn-primary mt-6 w-full"
-          >
+          <Link href="/checkout" className="btn-primary mt-6 w-full">
             Proceed to checkout
           </Link>
           <Link

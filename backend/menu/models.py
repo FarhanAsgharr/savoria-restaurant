@@ -42,9 +42,7 @@ class Category(TimeStampedModel):
     is_active = models.BooleanField(
         default=True, help_text="Inactive categories are hidden from the public API."
     )
-    display_order = models.PositiveIntegerField(
-        default=0, help_text="Lower numbers appear first."
-    )
+    display_order = models.PositiveIntegerField(default=0, help_text="Lower numbers appear first.")
 
     class Meta:
         verbose_name_plural = "categories"
@@ -123,13 +121,9 @@ class Order(TimeStampedModel):
     customer_phone = models.CharField(max_length=30, blank=True)
     address = models.TextField(blank=True, help_text="Delivery address (optional).")
     notes = models.TextField(blank=True, help_text="Special requests.")
-    status = models.CharField(
-        max_length=20, choices=Status.choices, default=Status.PENDING
-    )
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     # Snapshot of the order total at creation time (immune to later price changes).
-    total_amount = models.DecimalField(
-        max_digits=10, decimal_places=2, default=Decimal("0.00")
-    )
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
 
     class Meta:
         ordering = ["-created_at"]
@@ -139,9 +133,7 @@ class Order(TimeStampedModel):
 
     def recalculate_total(self, *, commit: bool = True) -> Decimal:
         """Recompute total_amount from the related order items."""
-        total = sum(
-            (item.subtotal for item in self.items.all()), start=Decimal("0.00")
-        )
+        total = sum((item.subtotal for item in self.items.all()), start=Decimal("0.00"))
         self.total_amount = total
         if commit:
             self.save(update_fields=["total_amount", "updated_at"])
@@ -151,15 +143,9 @@ class Order(TimeStampedModel):
 class OrderItem(models.Model):
     """A line item: a quantity of one MenuItem within an Order."""
 
-    order = models.ForeignKey(
-        Order, on_delete=models.CASCADE, related_name="items"
-    )
-    menu_item = models.ForeignKey(
-        MenuItem, on_delete=models.PROTECT, related_name="order_items"
-    )
-    quantity = models.PositiveIntegerField(
-        default=1, validators=[MinValueValidator(1)]
-    )
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
+    menu_item = models.ForeignKey(MenuItem, on_delete=models.PROTECT, related_name="order_items")
+    quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
     # Price captured at order time so historical orders stay accurate.
     unit_price = models.DecimalField(max_digits=8, decimal_places=2)
 

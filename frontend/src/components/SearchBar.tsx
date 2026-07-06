@@ -40,7 +40,12 @@ export function SearchBar({ placeholder = "Search dishes…" }: { placeholder?: 
         aria-hidden="true"
       >
         <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-        <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path
+          d="M20 20l-3.5-3.5"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
       </svg>
       <input
         type="search"

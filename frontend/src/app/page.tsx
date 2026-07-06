@@ -20,8 +20,7 @@ export default async function HomePage() {
 
   const categories =
     categoriesRes.status === "fulfilled" ? categoriesRes.value.results : [];
-  const featured =
-    featuredRes.status === "fulfilled" ? featuredRes.value.results : [];
+  const featured = featuredRes.status === "fulfilled" ? featuredRes.value.results : [];
 
   return (
     <main>
@@ -37,14 +36,17 @@ export default async function HomePage() {
             A taste of the <span className="text-gold-400">extraordinary</span>
           </h1>
           <p className="mt-6 max-w-xl animate-fade-in-up text-lg text-cream-100/80">
-            Seasonal, chef-crafted dishes made from the finest local ingredients.
-            Explore our menu and reserve your table for an unforgettable evening.
+            Seasonal, chef-crafted dishes made from the finest local ingredients. Explore
+            our menu and reserve your table for an unforgettable evening.
           </p>
           <div className="mt-10 flex animate-fade-in-up flex-col gap-4 sm:flex-row">
             <Link href="/menu" className="btn-primary">
               Explore the Menu
             </Link>
-            <Link href="/#about" className="btn-secondary !border-cream-100/40 !text-cream-50 hover:!bg-cream-50 hover:!text-espresso-900">
+            <Link
+              href="/#about"
+              className="btn-secondary !border-cream-100/40 !text-cream-50 hover:!bg-cream-50 hover:!text-espresso-900"
+            >
               Our Story
             </Link>
           </div>
@@ -89,16 +91,13 @@ export default async function HomePage() {
       <section id="about" className="container-page scroll-mt-20 py-24">
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
-            <SectionHeading
-              eyebrow="Our Story"
-              title="Rooted in craft & community"
-            />
+            <SectionHeading eyebrow="Our Story" title="Rooted in craft & community" />
             <div className="mt-6 space-y-4 text-espresso-600">
               <p>
-                Savoria began with a simple belief: that a great meal is more than
-                food — it’s a moment shared. Since 2026, our kitchen has celebrated
-                the seasons, partnering with local farms and growers to bring the
-                freshest ingredients to your table.
+                Savoria began with a simple belief: that a great meal is more than food —
+                it’s a moment shared. Since 2026, our kitchen has celebrated the seasons,
+                partnering with local farms and growers to bring the freshest ingredients
+                to your table.
               </p>
               <p>
                 Every dish is composed with intention by our culinary team, balancing

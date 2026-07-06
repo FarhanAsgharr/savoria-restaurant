@@ -4,8 +4,8 @@ import { FoodGridSkeleton } from "@/components/states";
 export default function CategoryLoading() {
   return (
     <main className="container-page py-14">
-      <div className="mb-6 h-4 w-40 skeleton rounded" />
-      <div className="h-10 w-64 skeleton rounded" />
+      <div className="skeleton mb-6 h-4 w-40 rounded" />
+      <div className="skeleton h-10 w-64 rounded" />
       <div className="mt-10">
         <FoodGridSkeleton count={6} />
       </div>

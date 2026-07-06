@@ -63,24 +63,18 @@ class MenuItemSerializer(serializers.ModelSerializer):
 class OrderItemWriteSerializer(serializers.Serializer):
     """Input for a single order line: just the item id and quantity."""
 
-    menu_item = serializers.PrimaryKeyRelatedField(
-        queryset=MenuItem.objects.all()
-    )
+    menu_item = serializers.PrimaryKeyRelatedField(queryset=MenuItem.objects.all())
     quantity = serializers.IntegerField(min_value=1, max_value=100)
 
     def validate_menu_item(self, value: MenuItem) -> MenuItem:
         if not value.is_available:
-            raise serializers.ValidationError(
-                f'"{value.name}" is currently unavailable.'
-            )
+            raise serializers.ValidationError(f'"{value.name}" is currently unavailable.')
         return value
 
 
 class OrderItemReadSerializer(serializers.ModelSerializer):
     menu_item_name = serializers.CharField(source="menu_item.name", read_only=True)
-    subtotal = serializers.DecimalField(
-        max_digits=10, decimal_places=2, read_only=True
-    )
+    subtotal = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = OrderItem

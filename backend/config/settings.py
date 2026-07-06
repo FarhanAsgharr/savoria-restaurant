@@ -167,11 +167,7 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
         # Browsable API kept only in development for convenience.
-        *(
-            ["rest_framework.renderers.BrowsableAPIRenderer"]
-            if DEBUG
-            else []
-        ),
+        *(["rest_framework.renderers.BrowsableAPIRenderer"] if DEBUG else []),
     ],
     "DEFAULT_THROTTLE_CLASSES": [
         "rest_framework.throttling.AnonRateThrottle",
@@ -186,9 +182,7 @@ REST_FRAMEWORK = {
 # ─────────────────────────────────────────────────────────────
 CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
 # Optional regex allow-list (e.g. temporary tunnel domains for demos).
-CORS_ALLOWED_ORIGIN_REGEXES = env(
-    "CORS_ALLOWED_ORIGIN_REGEXES", cast=list, default=[]
-)
+CORS_ALLOWED_ORIGIN_REGEXES = env("CORS_ALLOWED_ORIGIN_REGEXES", cast=list, default=[])
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 
@@ -235,9 +229,7 @@ WHATSAPP_TEMPLATE_NAME = env("WHATSAPP_TEMPLATE_NAME", default="")
 # Password-reset code lifetime (minutes) and max verification attempts.
 RESET_CODE_TTL_MINUTES = env.int("RESET_CODE_TTL_MINUTES", default=10)
 RESET_CODE_MAX_ATTEMPTS = env.int("RESET_CODE_MAX_ATTEMPTS", default=5)
-DEFAULT_FROM_EMAIL = env(
-    "DEFAULT_FROM_EMAIL", default="Savoria <no-reply@savoria.local>"
-)
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="Savoria <no-reply@savoria.local>")
 
 # ─────────────────────────────────────────────────────────────
 # Production hardening (only active when DEBUG is False)

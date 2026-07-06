@@ -24,7 +24,7 @@ export function SortSelect() {
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor="sort" className="whitespace-nowrap text-sm text-espresso-500">
+      <label htmlFor="sort" className="text-espresso-500 whitespace-nowrap text-sm">
         Sort by
       </label>
       <select

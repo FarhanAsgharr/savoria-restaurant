@@ -46,6 +46,7 @@ def _cached_photo(name: str) -> bytes | None:
         return p.read_bytes()
     return None
 
+
 # ── Demo data ────────────────────────────────────────────────
 CATEGORIES: list[dict] = [
     {"name": "Starters", "order": 1, "description": "Elegant small plates to awaken the palate."},
@@ -56,32 +57,97 @@ CATEGORIES: list[dict] = [
 
 ITEMS: list[dict] = [
     # (category, name, price, featured, description)
-    ("Starters", "Seared Scallops", "16.50", True,
-     "Pan-seared sea scallops on a cauliflower purée with brown-butter vinaigrette."),
-    ("Starters", "Burrata & Heirloom Tomato", "13.00", False,
-     "Creamy burrata, heirloom tomatoes, basil oil and aged balsamic."),
-    ("Starters", "Wild Mushroom Arancini", "11.50", False,
-     "Crispy risotto spheres with truffle aioli and parmesan."),
-    ("Main Courses", "Filet Mignon", "38.00", True,
-     "8oz grass-fed beef tenderloin, potato fondant and red-wine jus."),
-    ("Main Courses", "Pan-Roasted Salmon", "27.00", True,
-     "Atlantic salmon, lemon beurre blanc, seasonal greens."),
-    ("Main Courses", "Wild Mushroom Risotto", "22.00", False,
-     "Carnaroli rice, wild mushrooms, aged parmesan and white truffle oil."),
-    ("Main Courses", "Herb-Crusted Lamb Rack", "34.00", False,
-     "New Zealand lamb, rosemary crust, minted pea purée."),
-    ("Desserts", "Molten Chocolate Cake", "10.50", True,
-     "Warm dark-chocolate fondant with vanilla-bean ice cream."),
-    ("Desserts", "Crème Brûlée", "9.00", False,
-     "Classic vanilla custard with a caramelized sugar crust."),
-    ("Desserts", "Lemon Tart", "8.50", False,
-     "Zesty lemon curd in a buttery shortcrust with torched meringue."),
-    ("Drinks", "Signature Old Fashioned", "14.00", False,
-     "Bourbon, bitters, demerara and orange zest."),
-    ("Drinks", "Barolo (Glass)", "16.00", False,
-     "Full-bodied Italian red with notes of cherry and spice."),
-    ("Drinks", "Fresh Citrus Cooler", "6.50", False,
-     "House lemonade with mint and sparkling water."),
+    (
+        "Starters",
+        "Seared Scallops",
+        "16.50",
+        True,
+        "Pan-seared sea scallops on a cauliflower purée with brown-butter vinaigrette.",
+    ),
+    (
+        "Starters",
+        "Burrata & Heirloom Tomato",
+        "13.00",
+        False,
+        "Creamy burrata, heirloom tomatoes, basil oil and aged balsamic.",
+    ),
+    (
+        "Starters",
+        "Wild Mushroom Arancini",
+        "11.50",
+        False,
+        "Crispy risotto spheres with truffle aioli and parmesan.",
+    ),
+    (
+        "Main Courses",
+        "Filet Mignon",
+        "38.00",
+        True,
+        "8oz grass-fed beef tenderloin, potato fondant and red-wine jus.",
+    ),
+    (
+        "Main Courses",
+        "Pan-Roasted Salmon",
+        "27.00",
+        True,
+        "Atlantic salmon, lemon beurre blanc, seasonal greens.",
+    ),
+    (
+        "Main Courses",
+        "Wild Mushroom Risotto",
+        "22.00",
+        False,
+        "Carnaroli rice, wild mushrooms, aged parmesan and white truffle oil.",
+    ),
+    (
+        "Main Courses",
+        "Herb-Crusted Lamb Rack",
+        "34.00",
+        False,
+        "New Zealand lamb, rosemary crust, minted pea purée.",
+    ),
+    (
+        "Desserts",
+        "Molten Chocolate Cake",
+        "10.50",
+        True,
+        "Warm dark-chocolate fondant with vanilla-bean ice cream.",
+    ),
+    (
+        "Desserts",
+        "Crème Brûlée",
+        "9.00",
+        False,
+        "Classic vanilla custard with a caramelized sugar crust.",
+    ),
+    (
+        "Desserts",
+        "Lemon Tart",
+        "8.50",
+        False,
+        "Zesty lemon curd in a buttery shortcrust with torched meringue.",
+    ),
+    (
+        "Drinks",
+        "Signature Old Fashioned",
+        "14.00",
+        False,
+        "Bourbon, bitters, demerara and orange zest.",
+    ),
+    (
+        "Drinks",
+        "Barolo (Glass)",
+        "16.00",
+        False,
+        "Full-bodied Italian red with notes of cherry and spice.",
+    ),
+    (
+        "Drinks",
+        "Fresh Citrus Cooler",
+        "6.50",
+        False,
+        "House lemonade with mint and sparkling water.",
+    ),
 ]
 
 # AI image prompts — a precise visual description of each dish.
@@ -115,8 +181,16 @@ CATEGORY_COVERS: dict[str, str] = {
 def _gradient_image(seed: str, size: tuple[int, int] = (1200, 900)) -> ContentFile:
     """Deterministic warm-gradient JPEG — the fallback when generation fails."""
     digest = hashlib.md5(seed.encode()).hexdigest()
-    top = (150 + int(digest[0:2], 16) % 90, 90 + int(digest[2:4], 16) % 80, 50 + int(digest[4:6], 16) % 60)
-    bottom = (40 + int(digest[6:8], 16) % 40, 25 + int(digest[8:10], 16) % 30, 20 + int(digest[10:12], 16) % 25)
+    top = (
+        150 + int(digest[0:2], 16) % 90,
+        90 + int(digest[2:4], 16) % 80,
+        50 + int(digest[4:6], 16) % 60,
+    )
+    bottom = (
+        40 + int(digest[6:8], 16) % 40,
+        25 + int(digest[8:10], 16) % 30,
+        20 + int(digest[10:12], 16) % 25,
+    )
     width, height = size
     base = Image.new("RGB", size)
     px = base.load()
@@ -162,8 +236,9 @@ class Command(BaseCommand):
     help = "Seed demo categories and menu items with AI-generated dish photos."
 
     def add_arguments(self, parser):
-        parser.add_argument("--flush", action="store_true",
-                            help="Delete existing categories and menu items first.")
+        parser.add_argument(
+            "--flush", action="store_true", help="Delete existing categories and menu items first."
+        )
 
     def handle(self, *args, **options):
         CACHE_DIR.mkdir(exist_ok=True)
@@ -185,7 +260,9 @@ class Command(BaseCommand):
         if missing:
             with ThreadPoolExecutor(max_workers=3) as pool:
                 for name, ok in pool.map(gen_and_cache, missing):
-                    self.stdout.write(f"  • {name}: {'AI photo ✓' if ok else 'failed (retry next run)'}")
+                    self.stdout.write(
+                        f"  • {name}: {'AI photo ✓' if ok else 'failed (retry next run)'}"
+                    )
 
         # 2) Persist to the database (cached photo, or gradient fallback).
         with transaction.atomic():
@@ -234,6 +311,8 @@ class Command(BaseCommand):
                         category.image.delete(save=False)
                     category.image.save(f"cat-{category.slug}.jpg", ContentFile(data), save=True)
 
-        self.stdout.write(self.style.SUCCESS(
-            f"Seed complete: {len(categories)} categories, {len(ITEMS)} items with images."
-        ))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Seed complete: {len(categories)} categories, {len(ITEMS)} items with images."
+            )
+        )

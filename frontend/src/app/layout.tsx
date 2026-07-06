@@ -35,8 +35,7 @@ export const metadata: Metadata = {
   keywords: ["restaurant", "fine dining", "menu", "order food", "Savoria"],
   openGraph: {
     title: "Savoria — Fine Dining Restaurant",
-    description:
-      "Seasonal, chef-crafted dishes made from the finest local ingredients.",
+    description: "Seasonal, chef-crafted dishes made from the finest local ingredients.",
     type: "website",
     locale: "en_US",
   },

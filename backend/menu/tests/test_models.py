@@ -33,12 +33,8 @@ class MenuItemModelTests(TestCase):
         self.assertEqual(item.slug, "garlic-bread")
 
     def test_duplicate_names_get_unique_slugs(self):
-        first = MenuItem.objects.create(
-            category=self.category, name="Soup", price=Decimal("6.00")
-        )
-        second = MenuItem.objects.create(
-            category=self.category, name="Soup", price=Decimal("6.50")
-        )
+        first = MenuItem.objects.create(category=self.category, name="Soup", price=Decimal("6.00"))
+        second = MenuItem.objects.create(category=self.category, name="Soup", price=Decimal("6.50"))
         self.assertEqual(first.slug, "soup")
         self.assertEqual(second.slug, "soup-2")
         self.assertNotEqual(first.slug, second.slug)
@@ -55,18 +51,14 @@ class OrderModelTests(TestCase):
         )
 
     def test_order_item_subtotal(self):
-        order = Order.objects.create(
-            customer_name="Test", customer_email="t@example.com"
-        )
+        order = Order.objects.create(customer_name="Test", customer_email="t@example.com")
         line = OrderItem.objects.create(
             order=order, menu_item=self.item_a, quantity=3, unit_price=Decimal("30.00")
         )
         self.assertEqual(line.subtotal, Decimal("90.00"))
 
     def test_recalculate_total_sums_line_items(self):
-        order = Order.objects.create(
-            customer_name="Test", customer_email="t@example.com"
-        )
+        order = Order.objects.create(customer_name="Test", customer_email="t@example.com")
         OrderItem.objects.create(
             order=order, menu_item=self.item_a, quantity=2, unit_price=Decimal("30.00")
         )

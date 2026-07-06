@@ -44,9 +44,7 @@ def request_code(request):
                 request.session[SESSION_DEV_CODE] = result.get("dev_code") or ""
                 return redirect(reverse("phone_reset_verify"))
 
-            form.add_error(
-                "phone", "No active account is registered with that WhatsApp number."
-            )
+            form.add_error("phone", "No active account is registered with that WhatsApp number.")
     else:
         form = PhoneResetRequestForm()
 
@@ -74,9 +72,7 @@ def verify_code(request):
                 .first()
             )
             if not entry or not entry.is_valid():
-                form.add_error(
-                    "code", "This code has expired. Please request a new one."
-                )
+                form.add_error("code", "This code has expired. Please request a new one.")
             else:
                 entry.attempts += 1
                 if entry.code != form.cleaned_data["code"]:

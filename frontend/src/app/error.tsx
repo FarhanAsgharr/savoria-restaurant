@@ -27,8 +27,8 @@ export default function Error({
         Something went wrong
       </h1>
       <p className="mt-3 max-w-md text-espresso-600">
-        We couldn’t load this page. This can happen if the kitchen (our API)
-        is temporarily unavailable. Please try again.
+        We couldn’t load this page. This can happen if the kitchen (our API) is
+        temporarily unavailable. Please try again.
       </p>
       <button type="button" onClick={reset} className="btn-primary mt-8">
         Try again

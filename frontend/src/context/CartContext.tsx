@@ -106,8 +106,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   );
 
   const totalAmount = useMemo(
-    () =>
-      lines.reduce((sum, l) => sum + parseFloat(l.product.price) * l.quantity, 0),
+    () => lines.reduce((sum, l) => sum + parseFloat(l.product.price) * l.quantity, 0),
     [lines],
   );
 
@@ -122,7 +121,16 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       removeItem,
       clear,
     }),
-    [lines, hydrated, totalQuantity, totalAmount, addItem, setQuantity, removeItem, clear],
+    [
+      lines,
+      hydrated,
+      totalQuantity,
+      totalAmount,
+      addItem,
+      setQuantity,
+      removeItem,
+      clear,
+    ],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

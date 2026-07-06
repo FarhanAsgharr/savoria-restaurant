@@ -86,8 +86,8 @@ export default function CheckoutPage() {
   if (!hydrated) {
     return (
       <main className="container-page py-14">
-        <div className="h-10 w-48 skeleton rounded" />
-        <div className="mt-8 h-96 w-full skeleton rounded-2xl" />
+        <div className="skeleton h-10 w-48 rounded" />
+        <div className="skeleton mt-8 h-96 w-full rounded-2xl" />
       </main>
     );
   }
@@ -110,7 +110,10 @@ export default function CheckoutPage() {
 
   return (
     <main className="container-page py-14">
-      <SectionHeading title="Checkout" description="Just a few details and your order is on its way." />
+      <SectionHeading
+        title="Checkout"
+        description="Just a few details and your order is on its way."
+      />
 
       <form
         onSubmit={handleSubmit}
@@ -176,7 +179,10 @@ export default function CheckoutPage() {
           </h2>
           <ul className="mt-4 space-y-3 text-sm">
             {lines.map(({ product, quantity }) => (
-              <li key={product.id} className="flex justify-between gap-3 text-cream-100/80">
+              <li
+                key={product.id}
+                className="flex justify-between gap-3 text-cream-100/80"
+              >
                 <span>
                   {quantity} × {product.name}
                 </span>
@@ -191,11 +197,7 @@ export default function CheckoutPage() {
             <span>{formatPrice(totalAmount)}</span>
           </div>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="btn-primary mt-6 w-full"
-          >
+          <button type="submit" disabled={submitting} className="btn-primary mt-6 w-full">
             {submitting ? "Placing order…" : "Place order"}
           </button>
           <Link

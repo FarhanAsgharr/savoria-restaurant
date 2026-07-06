@@ -32,9 +32,7 @@ class StaffProfile(models.Model):
 
 
 def _default_expiry():
-    return timezone.now() + timedelta(
-        minutes=getattr(settings, "RESET_CODE_TTL_MINUTES", 10)
-    )
+    return timezone.now() + timedelta(minutes=getattr(settings, "RESET_CODE_TTL_MINUTES", 10))
 
 
 class PhoneResetCode(models.Model):
@@ -59,8 +57,4 @@ class PhoneResetCode(models.Model):
 
     def is_valid(self) -> bool:
         max_attempts = getattr(settings, "RESET_CODE_MAX_ATTEMPTS", 5)
-        return (
-            not self.used
-            and self.attempts < max_attempts
-            and timezone.now() < self.expires_at
-        )
+        return not self.used and self.attempts < max_attempts and timezone.now() < self.expires_at

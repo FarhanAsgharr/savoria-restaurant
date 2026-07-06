@@ -13,9 +13,7 @@ class PhoneResetRequestForm(forms.Form):
     phone = forms.CharField(
         label="WhatsApp number",
         max_length=30,
-        widget=forms.TextInput(
-            attrs={"placeholder": "+1 555 123 4567", "autocomplete": "tel"}
-        ),
+        widget=forms.TextInput(attrs={"placeholder": "+1 555 123 4567", "autocomplete": "tel"}),
     )
 
     def clean_phone(self) -> str:
@@ -28,9 +26,7 @@ class SetNewPasswordForm(forms.Form):
     code = forms.CharField(
         label="Verification code",
         max_length=6,
-        widget=forms.TextInput(
-            attrs={"inputmode": "numeric", "autocomplete": "one-time-code"}
-        ),
+        widget=forms.TextInput(attrs={"inputmode": "numeric", "autocomplete": "one-time-code"}),
     )
     new_password1 = forms.CharField(
         label="New password", widget=forms.PasswordInput(attrs={"autocomplete": "new-password"})

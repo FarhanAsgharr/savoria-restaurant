@@ -33,11 +33,7 @@ class CategoryViewSet(viewsets.ReadOnlyModelViewSet):
         # Annotate each category with a count of only its *available* items.
         return (
             Category.objects.filter(is_active=True)
-            .annotate(
-                available_item_count=Count(
-                    "items", filter=Q(items__is_available=True)
-                )
-            )
+            .annotate(available_item_count=Count("items", filter=Q(items__is_available=True)))
             .order_by("display_order", "name")
         )
 
