@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─────────────────────────────────────────────
+   Base design tokens & element defaults
+   ───────────────────────────────────────────── */
+@layer base {
+  :root {
+    --background: 250 249 245; /* cream-100-ish */
+    --foreground: 28 23 19; /* espresso-900 */
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-cream-100 text-espresso-900 font-sans antialiased;
+  }
+
+  ::selection {
+    @apply bg-gold-200 text-espresso-900;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Reusable component utilities
+   ───────────────────────────────────────────── */
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full bg-gold-500 px-6 py-3
+      font-medium text-white transition-colors duration-200 hover:bg-gold-600
+      focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+      focus-visible:outline-gold-500 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-espresso-800
+      px-6 py-3 font-medium text-espresso-900 transition-colors duration-200
+      hover:bg-espresso-900 hover:text-cream-50 focus-visible:outline
+      focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-espresso-800;
+  }
+
+  /* Shimmer effect used by skeleton loaders. */
+  .skeleton {
+    @apply relative overflow-hidden bg-espresso-100;
+  }
+  .skeleton::after {
+    @apply absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r
+      from-transparent via-white/60 to-transparent;
+    content: "";
+  }
+}

@@ -1,0 +1,19 @@
+# ── Core framework ──
+Django==5.1.4
+djangorestframework==3.15.2
+
+# ── API tooling ──
+django-cors-headers==4.6.0        # Secure CORS for the Next.js frontend
+django-filter==24.3               # Declarative filtering (category, availability)
+django-environ==0.11.2            # 12-factor environment variable management
+
+# ── Media / images ──
+Pillow==11.0.0                    # ImageField processing for menu item photos
+
+# ── Database ──
+psycopg2-binary==2.9.10           # PostgreSQL driver (production)
+
+# ── Production server / static files ──
+gunicorn==23.0.0                  # WSGI server for Render / Railway
+whitenoise==6.8.2                 # Serve static files without a separate CDN
+dj-database-url==2.3.0            # Parse DATABASE_URL for managed Postgres

@@ -1,0 +1,50 @@
+# ─────────────────────────────────────────────
+# Root monorepo .gitignore
+# ─────────────────────────────────────────────
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# ── Python / Django (backend) ──
+backend/venv/
+backend/.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
+backend/db.sqlite3
+backend/media/
+backend/staticfiles/
+backend/.env
+*.log
+
+# ── Node / Next.js (frontend) ──
+node_modules/
+.next/
+out/
+frontend/.env*.local
+frontend/.env
+next-env.d.ts
+.turbo/
+
+# Environment
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Coverage / tests
+.coverage
+htmlcov/
+coverage/
+.pytest_cache/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
