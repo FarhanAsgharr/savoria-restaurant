@@ -5,24 +5,46 @@ Usage:
     python manage.py seed_menu           # add/refresh data (idempotent)
     python manage.py seed_menu --flush   # wipe menu data first, then seed
 
-Each dish gets a real food photo from Unsplash (downloaded and stored locally
-so it's served like any uploaded image). If a download fails, it falls back to
-a generated warm-gradient placeholder — so images never end up broken.
+Each dish gets an AI-generated photo (Pollinations text-to-image) matching its
+exact description, downloaded and stored locally. Generation runs in parallel
+for speed; if any image fails, it falls back to a warm-gradient placeholder so
+images never end up broken.
 """
 
 from __future__ import annotations
 
 import hashlib
 import io
+import time
+import urllib.parse
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from decimal import Decimal
+from pathlib import Path
 
+from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.management.base import BaseCommand
 from django.db import transaction
 from PIL import Image
 
 from menu.models import Category, MenuItem
+
+# Generated photos are cached here so re-runs keep successes and only retry
+# the dishes that failed (the free AI service rate-limits batches).
+CACHE_DIR = Path(settings.BASE_DIR) / "seed_cache"
+REAL_MIN_BYTES = 45000  # smaller than this ⇒ treat as a failed/placeholder image
+
+
+def _cache_path(name: str) -> Path:
+    return CACHE_DIR / (hashlib.md5(name.encode()).hexdigest() + ".jpg")
+
+
+def _cached_photo(name: str) -> bytes | None:
+    p = _cache_path(name)
+    if p.exists() and p.stat().st_size > REAL_MIN_BYTES:
+        return p.read_bytes()
+    return None
 
 # ── Demo data ────────────────────────────────────────────────
 CATEGORIES: list[dict] = [
@@ -62,26 +84,28 @@ ITEMS: list[dict] = [
      "House lemonade with mint and sparkling water."),
 ]
 
-# Real Unsplash food/drink photos (photo IDs) matched to each dish.
-UNSPLASH_IDS: dict[str, str] = {
-    "Seared Scallops": "1519708227418-c8fd9a32b7a2",
-    "Burrata & Heirloom Tomato": "1432139555190-58524dae6a55",
-    "Wild Mushroom Arancini": "1476124369491-e7addf5db371",
-    "Filet Mignon": "1600891964092-4316c288032e",
-    "Pan-Roasted Salmon": "1467003909585-2f8a72700288",
-    "Wild Mushroom Risotto": "1476224203421-9ac39bcb3327",
-    "Herb-Crusted Lamb Rack": "1544025162-d76694265947",
-    "Molten Chocolate Cake": "1541599468348-e96984315921",
-    "Crème Brûlée": "1470324161839-ce2bb6fa6bc3",
-    "Lemon Tart": "1519915028121-7d3463d20b13",
-    "Signature Old Fashioned": "1514362545857-3bc16c4c7d1b",
-    "Barolo (Glass)": "1510812431401-41d2bd2722f3",
-    "Fresh Citrus Cooler": "1437418747212-8d9709afab22",
+# AI image prompts — a precise visual description of each dish.
+PROMPTS: dict[str, str] = {
+    "Seared Scallops": "pan-seared sea scallops on cauliflower puree with brown butter, elegant fine dining appetizer plated on white plate",
+    "Burrata & Heirloom Tomato": "fresh burrata cheese with colorful heirloom tomatoes, basil oil and balsamic, fine dining appetizer",
+    "Wild Mushroom Arancini": "crispy golden fried arancini risotto balls with truffle aioli and parmesan, fine dining appetizer",
+    "Filet Mignon": "filet mignon beef tenderloin steak with potato fondant and red wine jus, fine dining plated main course",
+    "Pan-Roasted Salmon": "pan-roasted salmon fillet with lemon butter sauce and seasonal green vegetables, fine dining plated",
+    "Wild Mushroom Risotto": "creamy wild mushroom risotto with parmesan and truffle oil in a bowl, fine dining",
+    "Herb-Crusted Lamb Rack": "herb-crusted rack of lamb chops with rosemary and pea puree, fine dining plated main course",
+    "Molten Chocolate Cake": "molten chocolate lava cake with a scoop of vanilla ice cream, elegant dessert",
+    "Crème Brûlée": "classic creme brulee with a caramelized golden sugar crust in a ramekin, dessert",
+    "Lemon Tart": "lemon tart slice with torched meringue on top, elegant plated dessert",
+    "Signature Old Fashioned": "old fashioned whiskey cocktail with a large ice cube and orange peel in a rocks glass, moody bar",
+    "Barolo (Glass)": "a glass of deep red Barolo wine on a table in an elegant restaurant",
+    "Fresh Citrus Cooler": "fresh sparkling lemonade citrus cooler with mint leaves and ice in a tall glass",
 }
+
+STYLE = "professional food photography, appetizing, natural soft light, shallow depth of field, high detail, no text, no watermark"
 
 
 def _gradient_image(seed: str, size: tuple[int, int] = (1200, 900)) -> ContentFile:
-    """Deterministic warm-gradient JPEG — the fallback when a download fails."""
+    """Deterministic warm-gradient JPEG — the fallback when generation fails."""
     digest = hashlib.md5(seed.encode()).hexdigest()
     top = (150 + int(digest[0:2], 16) % 90, 90 + int(digest[2:4], 16) % 80, 50 + int(digest[4:6], 16) % 60)
     bottom = (40 + int(digest[6:8], 16) % 40, 25 + int(digest[8:10], 16) % 30, 20 + int(digest[10:12], 16) % 25)
@@ -102,75 +126,91 @@ def _gradient_image(seed: str, size: tuple[int, int] = (1200, 900)) -> ContentFi
     return ContentFile(buffer.getvalue())
 
 
-def _dish_image(name: str) -> ContentFile:
-    """Download the dish's Unsplash photo; fall back to a gradient on failure."""
-    photo_id = UNSPLASH_IDS.get(name)
-    if photo_id:
-        url = (
-            f"https://images.unsplash.com/photo-{photo_id}"
-            "?w=1200&q=80&auto=format&fit=crop"
-        )
+def _generate(name: str) -> bytes | None:
+    """Generate a dish photo via Pollinations AI (with retries). JPEG bytes or None."""
+    prompt = f"{PROMPTS.get(name, name)}, {STYLE}"
+    seed = int(hashlib.md5(name.encode()).hexdigest()[:6], 16)
+    url = (
+        "https://image.pollinations.ai/prompt/"
+        + urllib.parse.quote(prompt)
+        + f"?width=1024&height=768&nologo=true&seed={seed}"
+    )
+    for attempt in range(4):
         try:
             req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-            with urllib.request.urlopen(req, timeout=30) as resp:
+            with urllib.request.urlopen(req, timeout=120) as resp:
                 if resp.status == 200:
                     data = resp.read()
-                    if data:
-                        return ContentFile(data)
-        except Exception:  # noqa: BLE001 — any failure → gradient fallback
+                    # Sanity check: a real photo, not an error page.
+                    if data and len(data) > 5000:
+                        return data
+        except Exception:  # noqa: BLE001
             pass
-    return _gradient_image(name)
+        time.sleep(3 + attempt * 4)  # back off; the free service rate-limits
+    return None
 
 
 class Command(BaseCommand):
-    help = "Seed the database with demo categories and menu items (with real photos)."
+    help = "Seed demo categories and menu items with AI-generated dish photos."
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            "--flush",
-            action="store_true",
-            help="Delete existing categories and menu items before seeding.",
-        )
+        parser.add_argument("--flush", action="store_true",
+                            help="Delete existing categories and menu items first.")
 
-    @transaction.atomic
     def handle(self, *args, **options):
-        if options["flush"]:
-            MenuItem.objects.all().delete()
-            Category.objects.all().delete()
-            self.stdout.write(self.style.WARNING("Existing menu data flushed."))
+        CACHE_DIR.mkdir(exist_ok=True)
+        names = [row[1] for row in ITEMS]
 
-        categories: dict[str, Category] = {}
-        for data in CATEGORIES:
-            category, _ = Category.objects.get_or_create(
-                name=data["name"],
-                defaults={"description": data["description"], "display_order": data["order"]},
-            )
-            categories[data["name"]] = category
-
-        photos = 0
-        for cat_name, name, price, featured, description in ITEMS:
-            item, _ = MenuItem.objects.get_or_create(
-                name=name,
-                defaults={
-                    "category": categories[cat_name],
-                    "description": description,
-                    "price": Decimal(price),
-                    "is_featured": featured,
-                    "is_available": True,
-                },
-            )
-            # Replace any previous image with a fresh (real) photo.
-            if item.image:
-                item.image.delete(save=False)
-            image = _dish_image(name)
-            size = image.size
-            item.image.save(f"{item.slug or item.pk}.jpg", image, save=True)
-            kind = "photo" if size > 60000 else "gradient (fallback)"
-            self.stdout.write(f"  • {name}  ({size} bytes, {kind})")
-            photos += 1
-
+        # 1) Only (re)generate dishes that aren't already cached as real photos.
+        missing = [n for n in names if _cached_photo(n) is None]
         self.stdout.write(
-            self.style.SUCCESS(
-                f"Seed complete: {len(categories)} categories, {photos} items with images."
-            )
+            f"{len(names) - len(missing)}/{len(names)} already have AI photos; "
+            f"generating {len(missing)}…"
         )
+
+        def gen_and_cache(name: str):
+            data = _generate(name)
+            if data:
+                _cache_path(name).write_bytes(data)
+            return name, bool(data)
+
+        if missing:
+            with ThreadPoolExecutor(max_workers=3) as pool:
+                for name, ok in pool.map(gen_and_cache, missing):
+                    self.stdout.write(f"  • {name}: {'AI photo ✓' if ok else 'failed (retry next run)'}")
+
+        # 2) Persist to the database (cached photo, or gradient fallback).
+        with transaction.atomic():
+            if options["flush"]:
+                MenuItem.objects.all().delete()
+                Category.objects.all().delete()
+                self.stdout.write(self.style.WARNING("Existing menu data flushed."))
+
+            categories: dict[str, Category] = {}
+            for data in CATEGORIES:
+                category, _ = Category.objects.get_or_create(
+                    name=data["name"],
+                    defaults={"description": data["description"], "display_order": data["order"]},
+                )
+                categories[data["name"]] = category
+
+            for cat_name, name, price, featured, description in ITEMS:
+                item, _ = MenuItem.objects.get_or_create(
+                    name=name,
+                    defaults={
+                        "category": categories[cat_name],
+                        "description": description,
+                        "price": Decimal(price),
+                        "is_featured": featured,
+                        "is_available": True,
+                    },
+                )
+                raw = _cached_photo(name)
+                image = ContentFile(raw) if raw else _gradient_image(name)
+                if item.image:
+                    item.image.delete(save=False)
+                item.image.save(f"{item.slug or item.pk}.jpg", image, save=True)
+
+        self.stdout.write(self.style.SUCCESS(
+            f"Seed complete: {len(categories)} categories, {len(ITEMS)} items with images."
+        ))

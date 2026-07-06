@@ -48,3 +48,6 @@ coverage/
 dist/
 build/
 *.egg-info/
+
+# AI image generation cache — committed so deploys reuse the same real photos
+# instead of regenerating them from a rate-limited free service at build time.
