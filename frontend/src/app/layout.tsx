@@ -52,8 +52,17 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-cream-100 text-espresso-900">
         <Providers>
+          {/* Skip link for keyboard & screen-reader users. */}
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-espresso-900 focus:px-4 focus:py-2 focus:text-cream-50"
+          >
+            Skip to content
+          </a>
           <Navbar />
-          <div className="flex-1">{children}</div>
+          <div id="main-content" tabIndex={-1} className="flex-1 outline-none">
+            {children}
+          </div>
           <Footer />
         </Providers>
       </body>

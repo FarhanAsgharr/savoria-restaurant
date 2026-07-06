@@ -4,6 +4,7 @@ import { CategoryFilter } from "@/components/CategoryFilter";
 import { FoodCard } from "@/components/FoodCard";
 import { EmptyState, SectionHeading } from "@/components/states";
 import { SearchBar } from "@/components/SearchBar";
+import { SortSelect } from "@/components/SortSelect";
 import { getCategories, getMenuItems } from "@/lib/api";
 
 export const metadata: Metadata = {
@@ -42,7 +43,10 @@ export default async function MenuPage({
 
       {/* Controls */}
       <div className="mt-8 flex flex-col gap-4">
-        <SearchBar />
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <SearchBar />
+          <SortSelect />
+        </div>
         <CategoryFilter categories={categories} />
       </div>
 
