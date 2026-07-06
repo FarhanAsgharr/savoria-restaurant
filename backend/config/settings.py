@@ -187,6 +187,27 @@ CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 
 # ─────────────────────────────────────────────────────────────
+# Frontend & email
+# ─────────────────────────────────────────────────────────────
+# Public URL of the customer-facing site. Used by the Admin "VIEW SITE" link.
+FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000")
+
+# Email backend for admin password-reset messages.
+# Dev: print emails to the console. Prod: configure SMTP via env vars.
+EMAIL_BACKEND = env(
+    "EMAIL_BACKEND",
+    default="django.core.mail.backends.console.EmailBackend",
+)
+EMAIL_HOST = env("EMAIL_HOST", default="")
+EMAIL_PORT = env.int("EMAIL_PORT", default=587)
+EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+DEFAULT_FROM_EMAIL = env(
+    "DEFAULT_FROM_EMAIL", default="Savoria <no-reply@savoria.local>"
+)
+
+# ─────────────────────────────────────────────────────────────
 # Production hardening (only active when DEBUG is False)
 # ─────────────────────────────────────────────────────────────
 if not DEBUG:

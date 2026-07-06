@@ -5,10 +5,18 @@ Provides a professional back-office for staff: image thumbnails, inline
 order items, search, filters, and read-only computed fields.
 """
 
+from django.conf import settings
 from django.contrib import admin
 from django.utils.html import format_html
 
 from .models import Category, MenuItem, Order, OrderItem
+
+# ── Admin branding ───────────────────────────────────────────
+admin.site.site_header = "Savoria Administration"
+admin.site.site_title = "Savoria Admin"
+admin.site.index_title = "Restaurant management"
+# "VIEW SITE" (top-right of the admin) opens the customer-facing website.
+admin.site.site_url = settings.FRONTEND_URL
 
 
 @admin.register(Category)
