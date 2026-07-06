@@ -1,0 +1,43 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block title %}Logged out | {{ site_title|default:_('Savoria admin') }}{% endblock %}
+
+{% block bodyclass %}{{ block.super }} logged-out-page{% endblock %}
+
+{% comment %} Hide the admin breadcrumbs/user-tools on this standalone page. {% endcomment %}
+{% block breadcrumbs %}{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block usertools %}{% endblock %}
+
+{% block content %}
+<div style="max-width:520px;margin:8vh auto;text-align:center;padding:2.5rem 2rem;
+            background:var(--body-bg,#fff);border-radius:16px;
+            box-shadow:0 10px 30px -12px rgba(28,23,19,.25);">
+  <div style="width:64px;height:64px;margin:0 auto 1.25rem;border-radius:16px;
+              background:#1c1713;display:flex;align-items:center;justify-content:center;">
+    <span style="font-family:Georgia,serif;font-size:34px;font-weight:700;color:#cfa244;">S</span>
+  </div>
+
+  <h1 style="font-family:Georgia,serif;font-size:1.9rem;margin:0 0 .5rem;color:var(--body-fg,#1c1713);">
+    You’ve been logged out
+  </h1>
+  <p style="color:var(--body-quiet-color,#666);margin:0 0 1.75rem;line-height:1.5;">
+    Thank you for managing Savoria. Your session has ended securely.
+  </p>
+
+  <div style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+    <a href="{% url 'admin:index' %}"
+       style="display:inline-block;padding:.7rem 1.4rem;border-radius:999px;
+              background:#b8862f;color:#fff;font-weight:600;text-decoration:none;">
+      Log in again
+    </a>
+    <a href="{{ site_url|default:'/' }}"
+       style="display:inline-block;padding:.7rem 1.4rem;border-radius:999px;
+              border:1px solid #1c1713;color:var(--body-fg,#1c1713);
+              font-weight:600;text-decoration:none;">
+      Visit the website
+    </a>
+  </div>
+</div>
+{% endblock %}
