@@ -11,6 +11,9 @@ const imageHost = process.env.NEXT_PUBLIC_IMAGE_HOST;
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Don't let Next rewrite/normalize the trailing slash on proxied API calls;
+  // the manual route handler at app/api/[...path] forwards them verbatim.
+  skipTrailingSlashRedirect: true,
   images: {
     remotePatterns: [
       {
