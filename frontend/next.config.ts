@@ -25,11 +25,18 @@ const nextConfig: NextConfig = {
         port: "8000",
         pathname: "/media/**",
       },
-      // Production backend host (e.g. your-api.onrender.com), if configured.
+      // Production / tunnel backend host (e.g. your-api.onrender.com or a
+      // *.trycloudflare.com demo tunnel), if configured. Allow both schemes
+      // so dev tunnels (http origin) also optimize correctly.
       ...(imageHost
         ? [
             {
               protocol: "https" as const,
+              hostname: imageHost,
+              pathname: "/media/**",
+            },
+            {
+              protocol: "http" as const,
               hostname: imageHost,
               pathname: "/media/**",
             },

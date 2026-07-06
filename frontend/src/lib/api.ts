@@ -14,8 +14,16 @@ import type {
   Paginated,
 } from "@/types";
 
-const API_URL =
+// Browser calls use the public URL (works from any network / a demo tunnel).
+const PUBLIC_API_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000/api";
+
+// Server-side rendering runs on the host machine, so it talks to the backend
+// directly (localhost) — fast and independent of any public-DNS routing.
+const API_URL =
+  typeof window === "undefined"
+    ? (process.env.INTERNAL_API_URL ?? PUBLIC_API_URL)
+    : PUBLIC_API_URL;
 
 /** Thrown for any non-2xx API response so callers can render error states. */
 export class ApiError extends Error {

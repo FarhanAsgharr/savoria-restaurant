@@ -184,6 +184,10 @@ REST_FRAMEWORK = {
 # CORS — only the trusted frontend origins may call the API
 # ─────────────────────────────────────────────────────────────
 CORS_ALLOWED_ORIGINS = env("CORS_ALLOWED_ORIGINS")
+# Optional regex allow-list (e.g. temporary tunnel domains for demos).
+CORS_ALLOWED_ORIGIN_REGEXES = env(
+    "CORS_ALLOWED_ORIGIN_REGEXES", cast=list, default=[]
+)
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = env("CSRF_TRUSTED_ORIGINS")
 
