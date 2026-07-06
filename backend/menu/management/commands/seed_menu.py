@@ -2,17 +2,19 @@
 Seed the database with realistic demo categories and menu items.
 
 Usage:
-    python manage.py seed_menu           # add data (idempotent)
+    python manage.py seed_menu           # add/refresh data (idempotent)
     python manage.py seed_menu --flush   # wipe menu data first, then seed
 
-Each dish gets a generated warm-gradient placeholder image (via Pillow),
-so the storefront looks complete without bundling real photography.
+Each dish gets a real food photo from Unsplash (downloaded and stored locally
+so it's served like any uploaded image). If a download fails, it falls back to
+a generated warm-gradient placeholder — so images never end up broken.
 """
 
 from __future__ import annotations
 
 import hashlib
 import io
+import urllib.request
 from decimal import Decimal
 
 from django.core.files.base import ContentFile
@@ -24,26 +26,10 @@ from menu.models import Category, MenuItem
 
 # ── Demo data ────────────────────────────────────────────────
 CATEGORIES: list[dict] = [
-    {
-        "name": "Starters",
-        "order": 1,
-        "description": "Elegant small plates to awaken the palate.",
-    },
-    {
-        "name": "Main Courses",
-        "order": 2,
-        "description": "Chef-crafted signature entrées.",
-    },
-    {
-        "name": "Desserts",
-        "order": 3,
-        "description": "Sweet finales, made in-house daily.",
-    },
-    {
-        "name": "Drinks",
-        "order": 4,
-        "description": "Curated wines, cocktails and soft beverages.",
-    },
+    {"name": "Starters", "order": 1, "description": "Elegant small plates to awaken the palate."},
+    {"name": "Main Courses", "order": 2, "description": "Chef-crafted signature entrées."},
+    {"name": "Desserts", "order": 3, "description": "Sweet finales, made in-house daily."},
+    {"name": "Drinks", "order": 4, "description": "Curated wines, cocktails and soft beverages."},
 ]
 
 ITEMS: list[dict] = [
@@ -76,38 +62,68 @@ ITEMS: list[dict] = [
      "House lemonade with mint and sparkling water."),
 ]
 
+# Real Unsplash food/drink photos (photo IDs) matched to each dish.
+UNSPLASH_IDS: dict[str, str] = {
+    "Seared Scallops": "1519708227418-c8fd9a32b7a2",
+    "Burrata & Heirloom Tomato": "1432139555190-58524dae6a55",
+    "Wild Mushroom Arancini": "1476124369491-e7addf5db371",
+    "Filet Mignon": "1600891964092-4316c288032e",
+    "Pan-Roasted Salmon": "1467003909585-2f8a72700288",
+    "Wild Mushroom Risotto": "1476224203421-9ac39bcb3327",
+    "Herb-Crusted Lamb Rack": "1544025162-d76694265947",
+    "Molten Chocolate Cake": "1541599468348-e96984315921",
+    "Crème Brûlée": "1470324161839-ce2bb6fa6bc3",
+    "Lemon Tart": "1519915028121-7d3463d20b13",
+    "Signature Old Fashioned": "1514362545857-3bc16c4c7d1b",
+    "Barolo (Glass)": "1510812431401-41d2bd2722f3",
+    "Fresh Citrus Cooler": "1437418747212-8d9709afab22",
+}
 
-def _gradient_image(seed: str, size: tuple[int, int] = (800, 600)) -> ContentFile:
-    """Create a deterministic warm diagonal-gradient JPEG for a given seed."""
+
+def _gradient_image(seed: str, size: tuple[int, int] = (1200, 900)) -> ContentFile:
+    """Deterministic warm-gradient JPEG — the fallback when a download fails."""
     digest = hashlib.md5(seed.encode()).hexdigest()
-    # Two warm anchor colors derived from the hash.
-    top = (
-        150 + int(digest[0:2], 16) % 90,
-        90 + int(digest[2:4], 16) % 80,
-        50 + int(digest[4:6], 16) % 60,
-    )
-    bottom = (
-        40 + int(digest[6:8], 16) % 40,
-        25 + int(digest[8:10], 16) % 30,
-        20 + int(digest[10:12], 16) % 25,
-    )
+    top = (150 + int(digest[0:2], 16) % 90, 90 + int(digest[2:4], 16) % 80, 50 + int(digest[4:6], 16) % 60)
+    bottom = (40 + int(digest[6:8], 16) % 40, 25 + int(digest[8:10], 16) % 30, 20 + int(digest[10:12], 16) % 25)
     width, height = size
     base = Image.new("RGB", size)
     px = base.load()
     for y in range(height):
         t = y / height
-        r = int(top[0] * (1 - t) + bottom[0] * t)
-        g = int(top[1] * (1 - t) + bottom[1] * t)
-        b = int(top[2] * (1 - t) + bottom[2] * t)
+        row = (
+            int(top[0] * (1 - t) + bottom[0] * t),
+            int(top[1] * (1 - t) + bottom[1] * t),
+            int(top[2] * (1 - t) + bottom[2] * t),
+        )
         for x in range(width):
-            px[x, y] = (r, g, b)
+            px[x, y] = row
     buffer = io.BytesIO()
     base.save(buffer, format="JPEG", quality=82)
     return ContentFile(buffer.getvalue())
 
 
+def _dish_image(name: str) -> ContentFile:
+    """Download the dish's Unsplash photo; fall back to a gradient on failure."""
+    photo_id = UNSPLASH_IDS.get(name)
+    if photo_id:
+        url = (
+            f"https://images.unsplash.com/photo-{photo_id}"
+            "?w=1200&q=80&auto=format&fit=crop"
+        )
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                if resp.status == 200:
+                    data = resp.read()
+                    if data:
+                        return ContentFile(data)
+        except Exception:  # noqa: BLE001 — any failure → gradient fallback
+            pass
+    return _gradient_image(name)
+
+
 class Command(BaseCommand):
-    help = "Seed the database with demo categories and menu items."
+    help = "Seed the database with demo categories and menu items (with real photos)."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -127,35 +143,34 @@ class Command(BaseCommand):
         for data in CATEGORIES:
             category, _ = Category.objects.get_or_create(
                 name=data["name"],
-                defaults={
-                    "description": data["description"],
-                    "display_order": data["order"],
-                },
+                defaults={"description": data["description"], "display_order": data["order"]},
             )
             categories[data["name"]] = category
 
-        created = 0
+        photos = 0
         for cat_name, name, price, featured, description in ITEMS:
-            if MenuItem.objects.filter(name=name).exists():
-                continue
-            item = MenuItem(
-                category=categories[cat_name],
+            item, _ = MenuItem.objects.get_or_create(
                 name=name,
-                description=description,
-                price=Decimal(price),
-                is_featured=featured,
-                is_available=True,
+                defaults={
+                    "category": categories[cat_name],
+                    "description": description,
+                    "price": Decimal(price),
+                    "is_featured": featured,
+                    "is_available": True,
+                },
             )
-            item.image.save(
-                f"{item.name.lower().replace(' ', '-')}.jpg",
-                _gradient_image(name),
-                save=False,
-            )
-            item.save()
-            created += 1
+            # Replace any previous image with a fresh (real) photo.
+            if item.image:
+                item.image.delete(save=False)
+            image = _dish_image(name)
+            size = image.size
+            item.image.save(f"{item.slug or item.pk}.jpg", image, save=True)
+            kind = "photo" if size > 60000 else "gradient (fallback)"
+            self.stdout.write(f"  • {name}  ({size} bytes, {kind})")
+            photos += 1
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Seed complete: {len(categories)} categories, {created} new items."
+                f"Seed complete: {len(categories)} categories, {photos} items with images."
             )
         )
