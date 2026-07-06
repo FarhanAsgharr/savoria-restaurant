@@ -1,0 +1,56 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}Reset password | {{ site_title|default:_('Savoria admin') }}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+{% block nav-global %}{% endblock %}
+{% block usertools %}{% endblock %}
+
+{% block content %}
+<div style="max-width:480px;margin:6vh auto;padding:2.25rem 2rem;background:var(--body-bg,#fff);
+            border-radius:16px;box-shadow:0 10px 30px -12px rgba(28,23,19,.25);">
+  <div style="width:56px;height:56px;margin:0 auto 1rem;border-radius:14px;background:#1c1713;
+              display:flex;align-items:center;justify-content:center;">
+    <span style="font-family:Georgia,serif;font-size:30px;font-weight:700;color:#cfa244;">S</span>
+  </div>
+  <h1 style="font-family:Georgia,serif;font-size:1.6rem;text-align:center;margin:0 0 .4rem;
+             color:var(--body-fg,#1c1713);">Reset your password</h1>
+  <p style="text-align:center;color:var(--body-quiet-color,#666);margin:0 0 1.5rem;line-height:1.5;">
+    Enter your registered WhatsApp number. We’ll send you a 6-digit verification code.
+  </p>
+
+  {% if form.non_field_errors %}
+    <div style="background:#fdecea;color:#b3261e;padding:.7rem .9rem;border-radius:10px;margin-bottom:1rem;">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    <label for="{{ form.phone.id_for_label }}"
+           style="display:block;font-weight:600;margin-bottom:.35rem;color:var(--body-fg,#1c1713);">
+      {{ form.phone.label }}
+    </label>
+    <input type="text" name="{{ form.phone.html_name }}" id="{{ form.phone.id_for_label }}"
+           value="{{ form.phone.value|default:'' }}" placeholder="+1 555 123 4567"
+           autocomplete="tel"
+           style="width:100%;box-sizing:border-box;padding:.7rem .9rem;border-radius:10px;
+                  border:1px solid {% if form.phone.errors %}#e0736a{% else %}#d9d2c9{% endif %};font-size:1rem;" />
+    {% if form.phone.errors %}
+      <p style="color:#b3261e;margin:.4rem 0 0;font-size:.9rem;">{{ form.phone.errors|striptags }}</p>
+    {% endif %}
+
+    <button type="submit"
+            style="width:100%;margin-top:1.25rem;padding:.8rem;border:none;border-radius:999px;
+                   background:#b8862f;color:#fff;font-weight:600;font-size:1rem;cursor:pointer;">
+      Send code via WhatsApp
+    </button>
+  </form>
+
+  <p style="text-align:center;margin:1.25rem 0 0;">
+    <a href="{% url 'admin:login' %}" style="color:#9a6d25;text-decoration:none;font-size:.9rem;">
+      ← Back to login
+    </a>
+  </p>
+</div>
+{% endblock %}

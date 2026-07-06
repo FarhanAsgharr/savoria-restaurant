@@ -59,6 +59,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
+    "accounts",
     "menu",
 ]
 
@@ -215,6 +216,25 @@ EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
+
+# ─────────────────────────────────────────────────────────────
+# WhatsApp verification (phone-based admin password reset)
+# ─────────────────────────────────────────────────────────────
+# Backend: "console" (dev — code is logged/shown on screen),
+#          "twilio", or "meta" (real WhatsApp delivery).
+WHATSAPP_BACKEND = env("WHATSAPP_BACKEND", default="console")
+# Twilio
+TWILIO_ACCOUNT_SID = env("TWILIO_ACCOUNT_SID", default="")
+TWILIO_AUTH_TOKEN = env("TWILIO_AUTH_TOKEN", default="")
+TWILIO_WHATSAPP_FROM = env("TWILIO_WHATSAPP_FROM", default="")  # e.g. whatsapp:+14155238886
+# Meta WhatsApp Cloud API
+WHATSAPP_TOKEN = env("WHATSAPP_TOKEN", default="")
+WHATSAPP_PHONE_NUMBER_ID = env("WHATSAPP_PHONE_NUMBER_ID", default="")
+WHATSAPP_TEMPLATE_NAME = env("WHATSAPP_TEMPLATE_NAME", default="")
+
+# Password-reset code lifetime (minutes) and max verification attempts.
+RESET_CODE_TTL_MINUTES = env.int("RESET_CODE_TTL_MINUTES", default=10)
+RESET_CODE_MAX_ATTEMPTS = env.int("RESET_CODE_MAX_ATTEMPTS", default=5)
 DEFAULT_FROM_EMAIL = env(
     "DEFAULT_FROM_EMAIL", default="Savoria <no-reply@savoria.local>"
 )
