@@ -20,13 +20,12 @@
   </p>
 
   {% if dev_code %}
-    <div style="background:#fbf7ee;border:1px dashed #cfa244;color:#7a5420;padding:.7rem .9rem;
-                border-radius:10px;margin-bottom:1rem;text-align:center;">
-      <strong>Developer mode:</strong> your code is
-      <span style="font-family:monospace;font-size:1.15rem;letter-spacing:2px;">{{ dev_code }}</span>
-      <div style="font-size:.8rem;color:#9a6d25;margin-top:.25rem;">
-        (Shown here because WhatsApp sending isn’t connected yet.)
+    <div style="background:#fbf7ee;border:1px solid #e9d3a0;color:#7a5420;padding:.9rem;
+                border-radius:12px;margin-bottom:1.25rem;text-align:center;">
+      <div style="font-size:.8rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.25rem;">
+        Your verification code
       </div>
+      <span style="font-family:monospace;font-size:1.6rem;font-weight:700;letter-spacing:5px;color:#1c1713;">{{ dev_code }}</span>
     </div>
   {% endif %}
 
