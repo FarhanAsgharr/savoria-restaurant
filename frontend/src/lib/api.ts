@@ -102,6 +102,7 @@ export interface MenuItemQuery extends QueryParams {
   ordering?: string;
   is_available?: boolean;
   page?: number;
+  page_size?: number;
 }
 
 export function getMenuItems(

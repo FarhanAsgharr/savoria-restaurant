@@ -48,7 +48,7 @@ export default async function CategoryPage({ params }: { params: Params }) {
     throw err;
   }
 
-  const itemsRes = await getMenuItems({ category: slug });
+  const itemsRes = await getMenuItems({ category: slug, page_size: 100 });
   const items = itemsRes.results;
 
   return (

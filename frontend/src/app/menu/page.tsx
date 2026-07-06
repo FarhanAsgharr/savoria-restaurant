@@ -25,7 +25,7 @@ export default async function MenuPage({
 
   const [categoriesRes, itemsRes] = await Promise.allSettled([
     getCategories(),
-    getMenuItems({ category, search, ordering }),
+    getMenuItems({ category, search, ordering, page_size: 100 }),
   ]);
 
   const categories =

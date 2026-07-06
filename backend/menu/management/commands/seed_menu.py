@@ -103,6 +103,14 @@ PROMPTS: dict[str, str] = {
 
 STYLE = "professional food photography, appetizing, natural soft light, shallow depth of field, high detail, no text, no watermark"
 
+# Representative dish whose photo becomes each category's cover image.
+CATEGORY_COVERS: dict[str, str] = {
+    "Starters": "Seared Scallops",
+    "Main Courses": "Filet Mignon",
+    "Desserts": "Molten Chocolate Cake",
+    "Drinks": "Signature Old Fashioned",
+}
+
 
 def _gradient_image(seed: str, size: tuple[int, int] = (1200, 900)) -> ContentFile:
     """Deterministic warm-gradient JPEG — the fallback when generation fails."""
@@ -210,6 +218,21 @@ class Command(BaseCommand):
                 if item.image:
                     item.image.delete(save=False)
                 item.image.save(f"{item.slug or item.pk}.jpg", image, save=True)
+
+            # Give each category a cover image (reuse a representative dish photo).
+            for cat_name, category in categories.items():
+                rep_name = CATEGORY_COVERS.get(cat_name)
+                rep = (
+                    MenuItem.objects.filter(name=rep_name).first()
+                    if rep_name
+                    else category.items.first()
+                )
+                if rep and rep.image:
+                    with rep.image.open("rb") as fh:
+                        data = fh.read()
+                    if category.image:
+                        category.image.delete(save=False)
+                    category.image.save(f"cat-{category.slug}.jpg", ContentFile(data), save=True)
 
         self.stdout.write(self.style.SUCCESS(
             f"Seed complete: {len(categories)} categories, {len(ITEMS)} items with images."
