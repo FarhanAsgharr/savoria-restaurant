@@ -98,7 +98,6 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = (
             "id",
             "customer_name",
-            "customer_email",
             "customer_phone",
             "address",
             "notes",

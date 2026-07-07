@@ -11,7 +11,6 @@ import { formatPrice } from "@/lib/format";
 
 interface FormState {
   customer_name: string;
-  customer_email: string;
   customer_phone: string;
   address: string;
   notes: string;
@@ -19,13 +18,13 @@ interface FormState {
 
 const EMPTY_FORM: FormState = {
   customer_name: "",
-  customer_email: "",
   customer_phone: "",
   address: "",
   notes: "",
 };
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Requires at least 7 digits (allowing +, spaces, dashes, parentheses).
+const PHONE_RE = /^[+\d][\d\s()-]{6,}$/;
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -46,9 +45,11 @@ export default function CheckoutPage() {
   const validate = (): boolean => {
     const next: Partial<Record<keyof FormState, string>> = {};
     if (!form.customer_name.trim()) next.customer_name = "Please enter your name.";
-    if (!form.customer_email.trim()) next.customer_email = "Please enter your email.";
-    else if (!EMAIL_RE.test(form.customer_email))
-      next.customer_email = "Please enter a valid email address.";
+    if (!form.customer_phone.trim())
+      next.customer_phone = "Please enter your phone number.";
+    else if (!PHONE_RE.test(form.customer_phone.trim()))
+      next.customer_phone = "Please enter a valid phone number.";
+    if (!form.address.trim()) next.address = "Please enter your delivery address.";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -62,9 +63,8 @@ export default function CheckoutPage() {
     try {
       const order = await createOrder({
         customer_name: form.customer_name.trim(),
-        customer_email: form.customer_email.trim(),
-        customer_phone: form.customer_phone.trim() || undefined,
-        address: form.address.trim() || undefined,
+        customer_phone: form.customer_phone.trim(),
+        address: form.address.trim(),
         notes: form.notes.trim() || undefined,
         items: lines.map((l) => ({
           menu_item: l.product.id,
@@ -132,28 +132,22 @@ export default function CheckoutPage() {
             autoComplete="name"
           />
           <Field
-            id="customer_email"
-            label="Email"
-            type="email"
-            required
-            value={form.customer_email}
-            onChange={update("customer_email")}
-            error={errors.customer_email}
-            autoComplete="email"
-          />
-          <Field
             id="customer_phone"
-            label="Phone (optional)"
+            label="Phone number"
             type="tel"
+            required
             value={form.customer_phone}
             onChange={update("customer_phone")}
+            error={errors.customer_phone}
             autoComplete="tel"
           />
           <Field
             id="address"
-            label="Delivery address (optional)"
+            label="Delivery address"
+            required
             value={form.address}
             onChange={update("address")}
+            error={errors.address}
             textarea
             autoComplete="street-address"
           />

@@ -51,14 +51,18 @@ class OrderModelTests(TestCase):
         )
 
     def test_order_item_subtotal(self):
-        order = Order.objects.create(customer_name="Test", customer_email="t@example.com")
+        order = Order.objects.create(
+            customer_name="Test", customer_phone="+15551234567", address="1 Main St"
+        )
         line = OrderItem.objects.create(
             order=order, menu_item=self.item_a, quantity=3, unit_price=Decimal("30.00")
         )
         self.assertEqual(line.subtotal, Decimal("90.00"))
 
     def test_recalculate_total_sums_line_items(self):
-        order = Order.objects.create(customer_name="Test", customer_email="t@example.com")
+        order = Order.objects.create(
+            customer_name="Test", customer_phone="+15551234567", address="1 Main St"
+        )
         OrderItem.objects.create(
             order=order, menu_item=self.item_a, quantity=2, unit_price=Decimal("30.00")
         )

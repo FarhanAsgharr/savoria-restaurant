@@ -119,9 +119,8 @@ export function getFeaturedItems(): Promise<Paginated<MenuItem>> {
 // ── Orders (used from Phase 2) ───────────────────────────────
 export interface CreateOrderPayload {
   customer_name: string;
-  customer_email: string;
-  customer_phone?: string;
-  address?: string;
+  customer_phone: string;
+  address: string;
   notes?: string;
   items: OrderItemInput[];
 }

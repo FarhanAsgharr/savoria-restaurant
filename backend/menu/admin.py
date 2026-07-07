@@ -96,13 +96,13 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "customer_name",
-        "customer_email",
+        "customer_phone",
         "status",
         "total_amount",
         "created_at",
     )
     list_filter = ("status", "created_at")
-    search_fields = ("customer_name", "customer_email", "customer_phone")
+    search_fields = ("customer_name", "customer_phone")
     readonly_fields = ("total_amount", "created_at", "updated_at")
     inlines = (OrderItemInline,)
     date_hierarchy = "created_at"

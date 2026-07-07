@@ -117,9 +117,8 @@ class Order(TimeStampedModel):
         CANCELLED = "cancelled", "Cancelled"
 
     customer_name = models.CharField(max_length=150)
-    customer_email = models.EmailField()
-    customer_phone = models.CharField(max_length=30, blank=True)
-    address = models.TextField(blank=True, help_text="Delivery address (optional).")
+    customer_phone = models.CharField(max_length=30)
+    address = models.TextField(help_text="Delivery address.")
     notes = models.TextField(blank=True, help_text="Special requests.")
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     # Snapshot of the order total at creation time (immune to later price changes).

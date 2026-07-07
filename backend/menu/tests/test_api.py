@@ -110,7 +110,8 @@ class OrderAPITests(APITestCase):
     def _payload(self, items):
         return {
             "customer_name": "Ada Lovelace",
-            "customer_email": "ada@example.com",
+            "customer_phone": "+15551234567",
+            "address": "1 Main St",
             "items": items,
         }
 
@@ -138,14 +139,15 @@ class OrderAPITests(APITestCase):
         res = self.client.post("/api/orders/", self._payload([]), format="json")
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_missing_email_rejected(self):
+    def test_missing_phone_and_address_rejected(self):
         payload = {
-            "customer_name": "No Email",
+            "customer_name": "No Contact",
             "items": [{"menu_item": self.steak.id, "quantity": 1}],
         }
         res = self.client.post("/api/orders/", payload, format="json")
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("customer_email", res.data)
+        self.assertIn("customer_phone", res.data)
+        self.assertIn("address", res.data)
 
     def test_unavailable_item_rejected(self):
         payload = self._payload([{"menu_item": self.unavailable.id, "quantity": 1}])

@@ -54,7 +54,6 @@ export interface CartLine {
 export interface OrderConfirmation {
   id: number;
   customer_name: string;
-  customer_email: string;
   customer_phone: string;
   address: string;
   notes: string;
