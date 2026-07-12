@@ -105,12 +105,13 @@ class OrderSerializer(serializers.ModelSerializer):
             "longitude",
             "notes",
             "status",
+            "delivered_at",
             "total_amount",
             "items",
             "order_items",
             "created_at",
         )
-        read_only_fields = ("status", "total_amount", "created_at")
+        read_only_fields = ("status", "delivered_at", "total_amount", "created_at")
 
     def validate_items(self, value):
         if not value:

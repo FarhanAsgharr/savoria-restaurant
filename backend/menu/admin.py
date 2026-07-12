@@ -7,9 +7,10 @@ order items, search, filters, and read-only computed fields.
 
 from django.conf import settings
 from django.contrib import admin
+from django.utils import timezone
 from django.utils.html import format_html
 
-from .models import Category, MenuItem, Order, OrderItem
+from .models import ActiveOrder, Category, DeliveredOrder, MenuItem, Order, OrderItem
 
 # ── Admin branding ───────────────────────────────────────────
 admin.site.site_header = "Savoria Administration"
@@ -101,8 +102,9 @@ class OrderItemInline(admin.TabularInline):
         return f"${obj.subtotal:.2f}" if obj.pk else "—"
 
 
-@admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
+class BaseOrderAdmin(admin.ModelAdmin):
+    """Shared config for the Active and Delivered order views."""
+
     list_display = (
         "id",
         "customer_name",
@@ -115,10 +117,18 @@ class OrderAdmin(admin.ModelAdmin):
     list_editable = ("status",)
     list_filter = ("status", "created_at")
     search_fields = ("customer_name", "customer_phone", "address")
-    readonly_fields = ("total_amount", "delivery_location", "created_at", "updated_at")
+    readonly_fields = (
+        "status_banner",
+        "total_amount",
+        "delivery_location",
+        "delivered_at",
+        "created_at",
+        "updated_at",
+    )
     inlines = (OrderItemInline,)
     date_hierarchy = "created_at"
     fieldsets = (
+        (None, {"fields": ("status_banner",)}),
         ("Customer", {"fields": ("customer_name", "customer_phone")}),
         ("Order", {"fields": ("status", "total_amount", "notes")}),
         (
@@ -127,9 +137,43 @@ class OrderAdmin(admin.ModelAdmin):
         ),
         (
             "Timestamps",
-            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+            {
+                "fields": ("delivered_at", "created_at", "updated_at"),
+                "classes": ("collapse",),
+            },
         ),
     )
+
+    @admin.display(description="")
+    def status_banner(self, obj: Order):
+        """A prominent banner at the top of the order for key statuses."""
+        if not obj or not obj.pk:
+            return ""
+        box = (
+            "padding:12px 16px;border-radius:8px;font-weight:600;font-size:14px;"
+            "margin-bottom:4px;"
+        )
+        if obj.status == Order.Status.OUT_FOR_DELIVERY:
+            return format_html(
+                '<div style="{}background:#e7f0ff;color:#1a4b8c;">'
+                "🛵 Order is out for delivery — on its way to the customer.</div>",
+                box,
+            )
+        if obj.status == Order.Status.DELIVERED:
+            when = ""
+            if obj.delivered_at:
+                when = timezone.localtime(obj.delivered_at).strftime("%B %-d, %Y at %-I:%M %p")
+            return format_html(
+                '<div style="{}background:#e6f6ea;color:#1a7a3c;">'
+                "✅ Delivery Completed: {}</div>",
+                box,
+                when,
+            )
+        return format_html(
+            '<div style="{}background:#f4f0e8;color:#6b5a3e;">Current status: {}</div>',
+            box,
+            obj.get_status_display(),
+        )
 
     @admin.display(description="Location on map")
     def delivery_location(self, obj: Order):
@@ -164,3 +208,22 @@ class OrderAdmin(admin.ModelAdmin):
         # Recompute the order total after inline items are saved.
         super().save_related(request, form, formsets, change)
         form.instance.recalculate_total()
+
+
+@admin.register(ActiveOrder)
+class ActiveOrderAdmin(BaseOrderAdmin):
+    """Working queue — everything except Delivered orders."""
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).exclude(status=Order.Status.DELIVERED)
+
+
+@admin.register(DeliveredOrder)
+class DeliveredOrderAdmin(BaseOrderAdmin):
+    """Completed orders — only those marked Delivered."""
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).filter(status=Order.Status.DELIVERED)
+
+    def has_add_permission(self, request):
+        return False  # delivered orders aren't created by hand

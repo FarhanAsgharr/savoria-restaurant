@@ -14,6 +14,7 @@ from decimal import Decimal
 
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils import timezone
 from django.utils.text import slugify
 
 
@@ -125,6 +126,8 @@ class Order(TimeStampedModel):
     longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     notes = models.TextField(blank=True, help_text="Special requests.")
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    # Set automatically the moment the order is marked Delivered.
+    delivered_at = models.DateTimeField(null=True, blank=True, editable=False)
     # Snapshot of the order total at creation time (immune to later price changes).
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
 
@@ -134,6 +137,17 @@ class Order(TimeStampedModel):
     def __str__(self) -> str:
         return f"Order #{self.pk} — {self.customer_name}"
 
+    def save(self, *args, **kwargs) -> None:
+        # Stamp the delivery time when marked Delivered; clear it otherwise.
+        if self.status == self.Status.DELIVERED and self.delivered_at is None:
+            self.delivered_at = timezone.now()
+        elif self.status != self.Status.DELIVERED:
+            self.delivered_at = None
+        update_fields = kwargs.get("update_fields")
+        if update_fields is not None:
+            kwargs["update_fields"] = set(update_fields) | {"delivered_at"}
+        super().save(*args, **kwargs)
+
     def recalculate_total(self, *, commit: bool = True) -> Decimal:
         """Recompute total_amount from the related order items."""
         total = sum((item.subtotal for item in self.items.all()), start=Decimal("0.00"))
@@ -141,6 +155,24 @@ class Order(TimeStampedModel):
         if commit:
             self.save(update_fields=["total_amount", "updated_at"])
         return total
+
+
+class ActiveOrder(Order):
+    """Proxy: orders that are not yet delivered (the working queue)."""
+
+    class Meta:
+        proxy = True
+        verbose_name = "Active Order"
+        verbose_name_plural = "Active Orders"
+
+
+class DeliveredOrder(Order):
+    """Proxy: completed (delivered) orders."""
+
+    class Meta:
+        proxy = True
+        verbose_name = "Delivered Order"
+        verbose_name_plural = "Delivered Orders"
 
 
 class OrderItem(models.Model):
