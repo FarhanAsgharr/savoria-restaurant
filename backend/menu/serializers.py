@@ -100,6 +100,8 @@ class OrderSerializer(serializers.ModelSerializer):
             "customer_name",
             "customer_phone",
             "address",
+            "latitude",
+            "longitude",
             "notes",
             "status",
             "total_amount",

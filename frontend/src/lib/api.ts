@@ -121,6 +121,8 @@ export interface CreateOrderPayload {
   customer_name: string;
   customer_phone: string;
   address: string;
+  latitude?: number;
+  longitude?: number;
   notes?: string;
   items: OrderItemInput[];
 }

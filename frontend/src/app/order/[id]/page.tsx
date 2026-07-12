@@ -34,14 +34,8 @@ export default async function OrderConfirmationPage({ params }: { params: Params
           <h1 className="mt-6 font-serif text-4xl font-bold text-espresso-900">
             Thank you, {order.customer_name.split(" ")[0]}!
           </h1>
-          <p className="mt-3 text-espresso-600">
-            Your order{" "}
-            <span className="font-semibold text-espresso-900">#{order.id}</span> has been
-            received. We’ll contact you at{" "}
-            <span className="font-medium">{order.customer_phone}</span> shortly.
-          </p>
           <span className="mt-4 inline-flex items-center gap-2 rounded-full bg-gold-100 px-4 py-1.5 text-sm font-medium capitalize text-gold-700">
-            Status: {order.status}
+            Order #{order.id} · {order.status}
           </span>
         </div>
 

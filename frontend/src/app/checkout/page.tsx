@@ -1,13 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import type { PickedLocation } from "@/components/AddressMap";
 import { EmptyState, SectionHeading } from "@/components/states";
 import { useCart } from "@/context/CartContext";
 import { ApiError, createOrder } from "@/lib/api";
 import { formatPrice } from "@/lib/format";
+
+// Leaflet needs the browser, so load the map client-side only.
+const AddressMap = dynamic(() => import("@/components/AddressMap"), {
+  ssr: false,
+  loading: () => (
+    <div className="skeleton h-[340px] w-full rounded-xl" aria-label="Loading map" />
+  ),
+});
 
 interface FormState {
   customer_name: string;
@@ -31,9 +41,18 @@ export default function CheckoutPage() {
   const { lines, hydrated, totalAmount, totalQuantity, clear } = useCart();
 
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
+  const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(
+    null,
+  );
   const [errors, setErrors] = useState<Partial<Record<keyof FormState, string>>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  const handleMapChange = (loc: PickedLocation) => {
+    setForm((f) => ({ ...f, address: loc.address }));
+    setCoords({ latitude: loc.latitude, longitude: loc.longitude });
+    setErrors((prev) => ({ ...prev, address: undefined }));
+  };
 
   const update =
     (field: keyof FormState) =>
@@ -49,7 +68,8 @@ export default function CheckoutPage() {
       next.customer_phone = "Please enter your phone number.";
     else if (!PHONE_RE.test(form.customer_phone.trim()))
       next.customer_phone = "Please enter a valid phone number.";
-    if (!form.address.trim()) next.address = "Please enter your delivery address.";
+    if (!form.address.trim())
+      next.address = "Please select your delivery address on the map.";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -65,6 +85,8 @@ export default function CheckoutPage() {
         customer_name: form.customer_name.trim(),
         customer_phone: form.customer_phone.trim(),
         address: form.address.trim(),
+        latitude: coords?.latitude,
+        longitude: coords?.longitude,
         notes: form.notes.trim() || undefined,
         items: lines.map((l) => ({
           menu_item: l.product.id,
@@ -141,16 +163,19 @@ export default function CheckoutPage() {
             error={errors.customer_phone}
             autoComplete="tel"
           />
-          <Field
-            id="address"
-            label="Delivery address"
-            required
-            value={form.address}
-            onChange={update("address")}
-            error={errors.address}
-            textarea
-            autoComplete="street-address"
-          />
+          {/* Map-based address picker — search or drop a pin for an accurate address. */}
+          <div>
+            <label className="text-sm font-medium text-espresso-800">
+              Delivery address <span className="text-red-500">*</span>
+            </label>
+            <p className="text-espresso-500 mb-2 mt-0.5 text-xs">
+              Search for your address or drag the pin to your exact location.
+            </p>
+            <AddressMap onChange={handleMapChange} />
+            {errors.address && (
+              <p className="mt-1 text-sm text-red-600">{errors.address}</p>
+            )}
+          </div>
           <Field
             id="notes"
             label="Special requests (optional)"

@@ -11,6 +11,8 @@ const imageHost = process.env.NEXT_PUBLIC_IMAGE_HOST;
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // react-leaflet ships ESM; transpile it for a clean production build.
+  transpilePackages: ["react-leaflet", "@react-leaflet/core"],
   // Don't let Next rewrite/normalize the trailing slash on proxied API calls;
   // the manual route handler at app/api/[...path] forwards them verbatim.
   skipTrailingSlashRedirect: true,

@@ -102,10 +102,17 @@ class OrderAdmin(admin.ModelAdmin):
         "created_at",
     )
     list_filter = ("status", "created_at")
-    search_fields = ("customer_name", "customer_phone")
-    readonly_fields = ("total_amount", "created_at", "updated_at")
+    search_fields = ("customer_name", "customer_phone", "address")
+    readonly_fields = ("total_amount", "map_link", "created_at", "updated_at")
     inlines = (OrderItemInline,)
     date_hierarchy = "created_at"
+
+    @admin.display(description="Location on map")
+    def map_link(self, obj: Order):
+        if obj.latitude is not None and obj.longitude is not None:
+            url = f"https://www.google.com/maps?q={obj.latitude},{obj.longitude}"
+            return format_html('<a href="{}" target="_blank">Open in Google Maps ↗</a>', url)
+        return "—"
 
     def save_related(self, request, form, formsets, change):
         # Recompute the order total after inline items are saved.

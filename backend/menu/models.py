@@ -118,7 +118,10 @@ class Order(TimeStampedModel):
 
     customer_name = models.CharField(max_length=150)
     customer_phone = models.CharField(max_length=30)
-    address = models.TextField(help_text="Delivery address.")
+    address = models.TextField(help_text="Delivery address (selected on the map).")
+    # Coordinates of the delivery address, picked on the map at checkout.
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, null=True, blank=True)
     notes = models.TextField(blank=True, help_text="Special requests.")
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     # Snapshot of the order total at creation time (immune to later price changes).
