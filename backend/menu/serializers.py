@@ -73,7 +73,8 @@ class OrderItemWriteSerializer(serializers.Serializer):
 
 
 class OrderItemReadSerializer(serializers.ModelSerializer):
-    menu_item_name = serializers.CharField(source="menu_item.name", read_only=True)
+    # Reads the stored snapshot so it survives deletion of the original dish.
+    menu_item_name = serializers.CharField(read_only=True)
     subtotal = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
@@ -129,8 +130,9 @@ class OrderSerializer(serializers.ModelSerializer):
                 OrderItem(
                     order=order,
                     menu_item=menu_item,
+                    menu_item_name=menu_item.name,  # snapshot name for history
                     quantity=quantity,
-                    unit_price=menu_item.price,  # server-side snapshot
+                    unit_price=menu_item.price,  # snapshot price
                 )
             )
             total += menu_item.price * quantity

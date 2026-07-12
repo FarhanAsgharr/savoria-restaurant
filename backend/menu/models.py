@@ -146,16 +146,26 @@ class OrderItem(models.Model):
     """A line item: a quantity of one MenuItem within an Order."""
 
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="items")
-    menu_item = models.ForeignKey(MenuItem, on_delete=models.PROTECT, related_name="order_items")
+    # SET_NULL (not PROTECT) so a dish/category can be deleted without blocking;
+    # the order line keeps its own name + price snapshot for history.
+    menu_item = models.ForeignKey(
+        MenuItem,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="order_items",
+    )
+    # Name + price captured at order time so history survives item deletion.
+    menu_item_name = models.CharField(max_length=150, blank=True)
     quantity = models.PositiveIntegerField(default=1, validators=[MinValueValidator(1)])
-    # Price captured at order time so historical orders stay accurate.
     unit_price = models.DecimalField(max_digits=8, decimal_places=2)
 
     class Meta:
         ordering = ["id"]
 
     def __str__(self) -> str:
-        return f"{self.quantity} × {self.menu_item.name}"
+        name = self.menu_item_name or (self.menu_item.name if self.menu_item else "deleted item")
+        return f"{self.quantity} × {name}"
 
     @property
     def subtotal(self) -> Decimal:
