@@ -68,8 +68,7 @@ export default function CheckoutPage() {
       next.customer_phone = "Please enter your phone number.";
     else if (!PHONE_RE.test(form.customer_phone.trim()))
       next.customer_phone = "Please enter a valid phone number.";
-    if (!form.address.trim())
-      next.address = "Please select your delivery address on the map.";
+    if (!form.address.trim()) next.address = "Please enter your delivery address.";
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -163,15 +162,29 @@ export default function CheckoutPage() {
             error={errors.customer_phone}
             autoComplete="tel"
           />
-          {/* Map-based address picker — search or drop a pin for an accurate address. */}
+          {/* Address: type it directly, or use the map to auto-fill it. */}
           <div>
-            <label className="text-sm font-medium text-espresso-800">
+            <label htmlFor="address" className="text-sm font-medium text-espresso-800">
               Delivery address <span className="text-red-500">*</span>
             </label>
             <p className="text-espresso-500 mb-2 mt-0.5 text-xs">
-              Search for your address or drag the pin to your exact location.
+              Type your address below, or search / drop a pin on the map to auto-fill it.
             </p>
             <AddressMap onChange={handleMapChange} />
+            <textarea
+              id="address"
+              value={form.address}
+              onChange={update("address")}
+              rows={2}
+              placeholder="Your full delivery address"
+              autoComplete="street-address"
+              aria-invalid={!!errors.address}
+              className={`mt-3 w-full rounded-xl border bg-cream-50 px-4 py-3 text-espresso-900 placeholder:text-espresso-400 focus:outline-none focus:ring-2 focus:ring-gold-500/30 ${
+                errors.address
+                  ? "border-red-400"
+                  : "border-cream-300 focus:border-gold-500"
+              }`}
+            />
             {errors.address && (
               <p className="mt-1 text-sm text-red-600">{errors.address}</p>
             )}
