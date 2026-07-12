@@ -96,12 +96,17 @@ export default function AddressMap({
     return () => clearTimeout(debounce.current);
   }, [query, selected]);
 
+  // Round to 6 decimals — the backend stores DecimalField(decimal_places=6).
+  const round6 = (n: number) => Math.round(n * 1e6) / 1e6;
+
   const commit = (lat: number, lng: number, address: string) => {
-    setPos([lat, lng]);
+    const rlat = round6(lat);
+    const rlng = round6(lng);
+    setPos([rlat, rlng]);
     setSelected(address);
     setQuery(address);
     setResults([]);
-    onChange({ address, latitude: lat, longitude: lng });
+    onChange({ address, latitude: rlat, longitude: rlng });
   };
 
   const chooseResult = (r: NominatimResult) =>

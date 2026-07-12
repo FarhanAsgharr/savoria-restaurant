@@ -97,7 +97,7 @@ export default function CheckoutPage() {
     } catch (err) {
       const message =
         err instanceof ApiError
-          ? "We couldn’t place your order. Please review your details and try again."
+          ? "We couldn’t place your order — an item in your cart may no longer be available. Try clearing your cart and re-adding items."
           : "Something went wrong. Please check your connection and try again.";
       setSubmitError(message);
       setSubmitting(false);
@@ -198,9 +198,19 @@ export default function CheckoutPage() {
           />
 
           {submitError && (
-            <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
-              {submitError}
-            </p>
+            <div role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+              <p>{submitError}</p>
+              <button
+                type="button"
+                onClick={() => {
+                  clear();
+                  router.push("/menu");
+                }}
+                className="mt-2 font-medium underline hover:no-underline"
+              >
+                Clear cart &amp; start over
+              </button>
+            </div>
           )}
         </div>
 
