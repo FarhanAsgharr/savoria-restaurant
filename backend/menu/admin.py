@@ -19,6 +19,15 @@ admin.site.index_title = "Restaurant management"
 admin.site.site_url = settings.FRONTEND_URL
 
 
+class MenuItemInline(admin.TabularInline):
+    """Add / edit / delete a category's dishes directly on its page."""
+
+    model = MenuItem
+    extra = 1  # show one blank row so a new dish can be added immediately
+    fields = ("name", "price", "is_available", "is_featured")
+    show_change_link = True  # link to the item's full page (image, description)
+
+
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("name", "display_order", "item_count", "is_active", "updated_at")
@@ -27,6 +36,7 @@ class CategoryAdmin(admin.ModelAdmin):
     search_fields = ("name", "description")
     prepopulated_fields = {"slug": ("name",)}
     ordering = ("display_order", "name")
+    inlines = (MenuItemInline,)
 
     @admin.display(description="Items")
     def item_count(self, obj: Category) -> int:
