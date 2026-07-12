@@ -113,7 +113,8 @@ class Order(TimeStampedModel):
         CONFIRMED = "confirmed", "Confirmed"
         PREPARING = "preparing", "Preparing"
         READY = "ready", "Ready"
-        COMPLETED = "completed", "Completed"
+        OUT_FOR_DELIVERY = "out_for_delivery", "Out for Delivery"
+        DELIVERED = "delivered", "Delivered"
         CANCELLED = "cancelled", "Cancelled"
 
     customer_name = models.CharField(max_length=150)

@@ -111,18 +111,54 @@ class OrderAdmin(admin.ModelAdmin):
         "total_amount",
         "created_at",
     )
+    # `status` editable straight from the list for quick updates.
+    list_editable = ("status",)
     list_filter = ("status", "created_at")
     search_fields = ("customer_name", "customer_phone", "address")
-    readonly_fields = ("total_amount", "map_link", "created_at", "updated_at")
+    readonly_fields = ("total_amount", "delivery_location", "created_at", "updated_at")
     inlines = (OrderItemInline,)
     date_hierarchy = "created_at"
+    fieldsets = (
+        ("Customer", {"fields": ("customer_name", "customer_phone")}),
+        ("Order", {"fields": ("status", "total_amount", "notes")}),
+        (
+            "Delivery location",
+            {"fields": ("address", "latitude", "longitude", "delivery_location")},
+        ),
+        (
+            "Timestamps",
+            {"fields": ("created_at", "updated_at"), "classes": ("collapse",)},
+        ),
+    )
 
     @admin.display(description="Location on map")
-    def map_link(self, obj: Order):
-        if obj.latitude is not None and obj.longitude is not None:
-            url = f"https://www.google.com/maps?q={obj.latitude},{obj.longitude}"
-            return format_html('<a href="{}" target="_blank">Open in Google Maps ↗</a>', url)
-        return "—"
+    def delivery_location(self, obj: Order):
+        """Embedded map + coordinates + Google Maps link for the delivery point."""
+        if obj.latitude is None or obj.longitude is None:
+            return format_html(
+                "<em>No map pin (address was typed manually):</em><br>{}",
+                obj.address or "—",
+            )
+        lat, lng = float(obj.latitude), float(obj.longitude)
+        d = 0.008
+        bbox = f"{lng - d},{lat - d},{lng + d},{lat + d}"
+        embed = (
+            f"https://www.openstreetmap.org/export/embed.html"
+            f"?bbox={bbox}&layer=mapnik&marker={lat},{lng}"
+        )
+        gmaps = f"https://www.google.com/maps?q={lat},{lng}"
+        return format_html(
+            '<iframe width="100%" height="320" frameborder="0" scrolling="no" '
+            'src="{}" style="border:1px solid #ccc;border-radius:8px"></iframe>'
+            '<div style="margin-top:8px">📍 <strong>{}</strong><br>'
+            "Coordinates: {}, {} &nbsp;·&nbsp; "
+            '<a href="{}" target="_blank" rel="noopener">Open in Google Maps ↗</a></div>',
+            embed,
+            obj.address,
+            lat,
+            lng,
+            gmaps,
+        )
 
     def save_related(self, request, form, formsets, change):
         # Recompute the order total after inline items are saved.
