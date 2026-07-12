@@ -193,6 +193,13 @@ if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
     CSRF_TRUSTED_ORIGINS.append(f"https://{RENDER_EXTERNAL_HOSTNAME}")
 
+# Generic single-domain deploy (e.g. PythonAnywhere): set SITE_DOMAIN and the
+# host is trusted for both ALLOWED_HOSTS and admin CSRF automatically.
+SITE_DOMAIN = env("SITE_DOMAIN", default=None)
+if SITE_DOMAIN:
+    ALLOWED_HOSTS.append(SITE_DOMAIN)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{SITE_DOMAIN}")
+
 # ─────────────────────────────────────────────────────────────
 # Frontend & email
 # ─────────────────────────────────────────────────────────────
