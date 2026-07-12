@@ -11,6 +11,9 @@ python manage.py migrate --no-input
 # Seed demo categories/dishes (idempotent) and regenerate their images.
 python manage.py seed_menu
 
+# Seed ~1 month of demo orders (skips if orders already exist).
+python manage.py seed_orders
+
 # Create the admin user from DJANGO_SUPERUSER_* env vars if it doesn't exist.
 # The "|| true" keeps redeploys from failing once the user already exists.
 python manage.py createsuperuser --no-input || true

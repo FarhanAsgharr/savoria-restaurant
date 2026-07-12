@@ -7,10 +7,41 @@ order items, search, filters, and read-only computed fields.
 
 from django.conf import settings
 from django.contrib import admin
+from django.db.models import Count
 from django.utils import timezone
 from django.utils.html import format_html
 
-from .models import ActiveOrder, Category, DeliveredOrder, MenuItem, Order, OrderItem
+from .models import (
+    ActiveOrder,
+    CancelledOrder,
+    Category,
+    DeliveredOrder,
+    MenuItem,
+    Order,
+    OrderItem,
+)
+
+
+class StatusCountFilter(admin.SimpleListFilter):
+    """Status filter that shows the count of orders for each status."""
+
+    title = "status"
+    parameter_name = "status"
+
+    def lookups(self, request, model_admin):
+        qs = model_admin.get_queryset(request)
+        counts = dict(qs.values_list("status").annotate(n=Count("id")))
+        labels = dict(Order.Status.choices)
+        # Only show statuses that actually occur in this section.
+        return [
+            (value, f"{labels[value]} ({counts[value]})") for value in labels if counts.get(value)
+        ]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            return queryset.filter(status=self.value())
+        return queryset
+
 
 # ── Admin branding ───────────────────────────────────────────
 admin.site.site_header = "Savoria Administration"
@@ -115,7 +146,7 @@ class BaseOrderAdmin(admin.ModelAdmin):
     )
     # `status` editable straight from the list for quick updates.
     list_editable = ("status",)
-    list_filter = ("status", "created_at")
+    list_filter = (StatusCountFilter, "created_at")
     search_fields = ("customer_name", "customer_phone", "address")
     readonly_fields = (
         "status_banner",
@@ -210,12 +241,21 @@ class BaseOrderAdmin(admin.ModelAdmin):
         form.instance.recalculate_total()
 
 
+@admin.register(Order)
+class AllOrdersAdmin(BaseOrderAdmin):
+    """Every order, with a per-status breakdown (the full history)."""
+
+
 @admin.register(ActiveOrder)
 class ActiveOrderAdmin(BaseOrderAdmin):
-    """Working queue — everything except Delivered orders."""
+    """Working queue — everything except Delivered and Cancelled orders."""
 
     def get_queryset(self, request):
-        return super().get_queryset(request).exclude(status=Order.Status.DELIVERED)
+        return (
+            super()
+            .get_queryset(request)
+            .exclude(status__in=[Order.Status.DELIVERED, Order.Status.CANCELLED])
+        )
 
 
 @admin.register(DeliveredOrder)
@@ -227,3 +267,14 @@ class DeliveredOrderAdmin(BaseOrderAdmin):
 
     def has_add_permission(self, request):
         return False  # delivered orders aren't created by hand
+
+
+@admin.register(CancelledOrder)
+class CancelledOrderAdmin(BaseOrderAdmin):
+    """Cancelled orders."""
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).filter(status=Order.Status.CANCELLED)
+
+    def has_add_permission(self, request):
+        return False

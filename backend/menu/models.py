@@ -175,6 +175,15 @@ class DeliveredOrder(Order):
         verbose_name_plural = "Delivered Orders"
 
 
+class CancelledOrder(Order):
+    """Proxy: cancelled orders."""
+
+    class Meta:
+        proxy = True
+        verbose_name = "Cancelled Order"
+        verbose_name_plural = "Cancelled Orders"
+
+
 class OrderItem(models.Model):
     """A line item: a quantity of one MenuItem within an Order."""
 
