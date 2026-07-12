@@ -18,6 +18,19 @@ interface NominatimResult {
   display_name: string;
 }
 
+// ── Lahore-only bounds ───────────────────────────────────────
+// Delivery is limited to Lahore, so the map, search and pin are all
+// constrained to the city's boundaries.
+const LAHORE_CENTER: [number, number] = [31.5204, 74.3587];
+// Leaflet maxBounds: [[south, west], [north, east]]
+const LAHORE_BOUNDS: [[number, number], [number, number]] = [
+  [31.3, 74.15],
+  [31.72, 74.62],
+];
+// Nominatim viewbox: minLon,maxLat,maxLon,minLat
+const LAHORE_VIEWBOX = "74.15,31.72,74.62,31.30";
+const isInLahore = (displayName: string) => /lahore/i.test(displayName);
+
 // A gold teardrop pin as an HTML div-icon (avoids Leaflet's default-icon
 // bundling problem entirely).
 const pinIcon = L.divIcon({
@@ -65,8 +78,8 @@ export default function AddressMap({
 }: {
   onChange: (loc: PickedLocation) => void;
 }) {
-  // Default view: a neutral world-ish center until the user searches.
-  const [pos, setPos] = useState<[number, number]>([30.3753, 69.3451]);
+  // Map starts centered on Lahore; delivery is Lahore-only.
+  const [pos, setPos] = useState<[number, number]>(LAHORE_CENTER);
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<NominatimResult[]>([]);
   const [selected, setSelected] = useState("");
@@ -83,10 +96,21 @@ export default function AddressMap({
     setSearching(true);
     debounce.current = setTimeout(async () => {
       try {
+        // Bounded to Lahore's viewbox + Pakistan, and query pinned to Lahore.
+        const params = new URLSearchParams({
+          format: "json",
+          limit: "6",
+          countrycodes: "pk",
+          viewbox: LAHORE_VIEWBOX,
+          bounded: "1",
+          q: `${query}, Lahore`,
+        });
         const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(query)}`,
+          `https://nominatim.openstreetmap.org/search?${params.toString()}`,
         );
-        setResults(await res.json());
+        const data: NominatimResult[] = await res.json();
+        // Extra safety: keep only results that are actually in Lahore.
+        setResults(data.filter((r) => isInLahore(r.display_name)));
       } catch {
         setResults([]);
       } finally {
@@ -128,8 +152,8 @@ export default function AddressMap({
             setQuery(e.target.value);
             setSelected("");
           }}
-          placeholder="Search your address, or drop a pin on the map"
-          aria-label="Search delivery address"
+          placeholder="Search your area in Lahore (e.g. DHA, Gulberg, Johar Town)"
+          aria-label="Search delivery address in Lahore"
           className="w-full rounded-xl border border-cream-300 bg-cream-50 px-4 py-3 text-espresso-900 placeholder:text-espresso-400 focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/30"
         />
         {(results.length > 0 || searching) && (
@@ -152,11 +176,18 @@ export default function AddressMap({
         )}
       </div>
 
+      <p className="mt-1.5 text-xs text-gold-700">
+        🛵 We currently deliver within Lahore only.
+      </p>
+
       {/* Map */}
-      <div className="mt-3 overflow-hidden rounded-xl border border-cream-300">
+      <div className="mt-2 overflow-hidden rounded-xl border border-cream-300">
         <MapContainer
-          center={pos}
-          zoom={5}
+          center={LAHORE_CENTER}
+          zoom={11}
+          minZoom={11}
+          maxBounds={LAHORE_BOUNDS}
+          maxBoundsViscosity={1}
           scrollWheelZoom={false}
           style={{ height: 280, width: "100%" }}
         >
