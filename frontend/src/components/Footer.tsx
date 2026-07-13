@@ -41,11 +41,12 @@ export function Footer() {
             Visit Us
           </h3>
           <address className="mt-4 space-y-2 text-sm not-italic text-cream-100/80">
-            <p>128 Vineyard Avenue</p>
-            <p>Napa, CA 94558</p>
+            <p className="font-medium text-cream-50">Muhammad Farhan Asghar</p>
+            <p>MM Alam Road, Gulberg III</p>
+            <p>Lahore, Pakistan</p>
             <p>
-              <a href="tel:+17075550142" className="hover:text-gold-300">
-                (707) 555-0142
+              <a href="tel:+923313988471" className="hover:text-gold-300">
+                +92 331 3988471
               </a>
             </p>
           </address>
