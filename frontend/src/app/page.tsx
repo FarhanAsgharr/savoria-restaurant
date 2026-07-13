@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { CategoryCard } from "@/components/CategoryCard";
 import { FoodCard } from "@/components/FoodCard";
+import { Reveal } from "@/components/Reveal";
 import { SectionHeading } from "@/components/states";
 import { getCategories, getFeaturedItems } from "@/lib/api";
 
@@ -27,7 +28,8 @@ export default async function HomePage() {
       {/* ── Hero ────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-espresso-900 text-cream-50">
         <div className="absolute inset-0 bg-gradient-to-br from-espresso-800 via-espresso-900 to-black" />
-        <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-gold-500/10 blur-3xl" />
+        <div className="absolute -right-24 -top-24 h-96 w-96 animate-pulse-glow rounded-full bg-gold-500/10 blur-3xl" />
+        <div className="absolute -bottom-32 -left-20 h-80 w-80 animate-float rounded-full bg-gold-400/10 blur-3xl" />
         <div className="container-page relative flex min-h-[78vh] flex-col items-start justify-center py-24">
           <p className="animate-fade-in-up text-sm font-medium uppercase tracking-[0.3em] text-gold-300">
             Fine Dining · Est. 2026
@@ -62,8 +64,8 @@ export default async function HomePage() {
             description="A handpicked selection of our most beloved plates."
           />
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {featured.slice(0, 6).map((item) => (
-              <FoodCard key={item.id} item={item} />
+            {featured.slice(0, 6).map((item, i) => (
+              <FoodCard key={item.id} item={item} index={i} />
             ))}
           </div>
         </section>
@@ -79,8 +81,8 @@ export default async function HomePage() {
               description="From delicate starters to indulgent desserts."
             />
             <div className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
-              {categories.map((category) => (
-                <CategoryCard key={category.id} category={category} />
+              {categories.map((category, i) => (
+                <CategoryCard key={category.id} category={category} index={i} />
               ))}
             </div>
           </div>
@@ -90,7 +92,7 @@ export default async function HomePage() {
       {/* ── Our Story ───────────────────────────────────────── */}
       <section id="about" className="container-page scroll-mt-20 py-24">
         <div className="grid items-center gap-12 lg:grid-cols-2">
-          <div>
+          <Reveal>
             <SectionHeading eyebrow="Our Story" title="Rooted in craft & community" />
             <div className="mt-6 space-y-4 text-espresso-600">
               <p>
@@ -108,14 +110,16 @@ export default async function HomePage() {
             <Link href="/menu" className="btn-primary mt-8">
               View the full menu
             </Link>
-          </div>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br from-gold-300 via-gold-500 to-espresso-800 shadow-card">
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="font-serif text-7xl font-bold text-cream-50/90">
-                Savoria
-              </span>
+          </Reveal>
+          <Reveal delay={150}>
+            <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-gradient-to-br from-gold-300 via-gold-500 to-espresso-800 shadow-card transition-transform duration-500 hover:scale-[1.02]">
+              <div className="absolute inset-0 flex animate-float items-center justify-center">
+                <span className="font-serif text-7xl font-bold text-cream-50/90">
+                  Savoria
+                </span>
+              </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
     </main>

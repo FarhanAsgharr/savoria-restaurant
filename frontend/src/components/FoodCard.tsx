@@ -9,11 +9,14 @@ import type { MenuItem } from "@/types";
  * The signature menu-item card: image, category, name, description,
  * price and an availability badge. Links to the item detail page.
  */
-export function FoodCard({ item }: { item: MenuItem }) {
+export function FoodCard({ item, index = 0 }: { item: MenuItem; index?: number }) {
   const href = `/menu/${item.category_slug}/${item.slug}`;
 
   return (
-    <article className="group animate-fade-in-up overflow-hidden rounded-2xl bg-cream-50 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover">
+    <article
+      style={{ animationDelay: `${(index % 12) * 70}ms` }}
+      className="group animate-fade-in-up overflow-hidden rounded-2xl bg-cream-50 shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-card-hover"
+    >
       <Link href={href} className="block focus:outline-none">
         <div className="relative aspect-[4/3] overflow-hidden">
           <DishImage

@@ -142,8 +142,8 @@ export default async function ItemPage({ params }: { params: Params }) {
         <section className="mt-20">
           <SectionHeading eyebrow="You may also like" title="More from this menu" />
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {related.map((r) => (
-              <FoodCard key={r.id} item={r} />
+            {related.map((r, i) => (
+              <FoodCard key={r.id} item={r} index={i} />
             ))}
           </div>
         </section>

@@ -33,11 +33,11 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center rounded-full bg-gold-500 px-6 py-3 font-medium text-white transition-colors duration-200 hover:bg-gold-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex items-center justify-center rounded-full bg-gold-500 px-6 py-3 font-medium text-white shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:bg-gold-600 hover:shadow-md focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold-500 active:translate-y-0 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center rounded-full border border-espresso-800 px-6 py-3 font-medium text-espresso-900 transition-colors duration-200 hover:bg-espresso-900 hover:text-cream-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-espresso-800;
+    @apply inline-flex items-center justify-center rounded-full border border-espresso-800 px-6 py-3 font-medium text-espresso-900 transition-all duration-200 hover:-translate-y-0.5 hover:bg-espresso-900 hover:text-cream-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-espresso-800 active:translate-y-0 active:scale-[0.98];
   }
 
   /* Shimmer effect used by skeleton loaders. */
@@ -47,5 +47,17 @@
   .skeleton::after {
     @apply absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-white/60 to-transparent;
     content: "";
+  }
+}
+
+/* Accessibility: respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }

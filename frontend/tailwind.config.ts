@@ -56,12 +56,32 @@ const config: Config = {
           "0%": { opacity: "0", transform: "translateY(12px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        "fade-in": {
+          "0%": { opacity: "0" },
+          "100%": { opacity: "1" },
+        },
+        "scale-in": {
+          "0%": { opacity: "0", transform: "scale(0.94)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-12px)" },
+        },
+        "pulse-glow": {
+          "0%, 100%": { opacity: "0.35" },
+          "50%": { opacity: "0.6" },
+        },
         shimmer: {
           "100%": { transform: "translateX(100%)" },
         },
       },
       animation: {
         "fade-in-up": "fade-in-up 0.6s ease-out both",
+        "fade-in": "fade-in 0.8s ease-out both",
+        "scale-in": "scale-in 0.5s ease-out both",
+        float: "float 6s ease-in-out infinite",
+        "pulse-glow": "pulse-glow 5s ease-in-out infinite",
         shimmer: "shimmer 1.6s infinite",
       },
     },

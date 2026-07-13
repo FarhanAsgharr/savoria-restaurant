@@ -55,8 +55,8 @@ export default async function MenuPage({ searchParams }: { searchParams: SearchP
       <div className="mt-6">
         {items.length > 0 ? (
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {items.map((item) => (
-              <FoodCard key={item.id} item={item} />
+            {items.map((item, i) => (
+              <FoodCard key={item.id} item={item} index={i} />
             ))}
           </div>
         ) : (
