@@ -47,6 +47,13 @@ const nextConfig: NextConfig = {
             },
           ]
         : []),
+      // Menu photos are stored in a public Supabase Storage bucket and served
+      // from the project's public object endpoint.
+      {
+        protocol: "https" as const,
+        hostname: "**.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
     ],
   },
 };
