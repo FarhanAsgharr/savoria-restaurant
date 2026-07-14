@@ -146,10 +146,34 @@ USE_TZ = True
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
+
+# Static files are served by WhiteNoise. On a serverless host there is no
+# `collectstatic` build step, so in production we serve them straight from the
+# app's finders at request time (admin CSS included) — no manifest needed.
+if DEBUG:
+    _staticfiles_backend = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+else:
+    _staticfiles_backend = "django.contrib.staticfiles.storage.StaticFilesStorage"
+    WHITENOISE_USE_FINDERS = True
+
+# Media (uploaded menu photos). When Supabase Storage is configured via env
+# vars, store media in a public bucket there so it is permanent and works on
+# serverless. Otherwise fall back to the local filesystem (development).
+SUPABASE_BUCKET = env("SUPABASE_BUCKET", default=None)
+if SUPABASE_BUCKET:
+    SUPABASE_URL = env("SUPABASE_URL")                    # https://<ref>.supabase.co
+    SUPABASE_SERVICE_KEY = env("SUPABASE_SERVICE_KEY")    # service-role key (server only)
+    _media_backend = "config.supabase_storage.SupabaseStorage"
+else:
+    _media_backend = "django.core.files.storage.FileSystemStorage"
+
+STORAGES = {
+    "default": {"BACKEND": _media_backend},
+    "staticfiles": {"BACKEND": _staticfiles_backend},
+}
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -199,6 +223,16 @@ SITE_DOMAIN = env("SITE_DOMAIN", default=None)
 if SITE_DOMAIN:
     ALLOWED_HOSTS.append(SITE_DOMAIN)
     CSRF_TRUSTED_ORIGINS.append(f"https://{SITE_DOMAIN}")
+
+# On Vercel, the deployment hostname is injected as VERCEL_URL. Trust it plus
+# any *.vercel.app production alias for host validation and admin CSRF.
+VERCEL_URL = env("VERCEL_URL", default=None)
+if VERCEL_URL:
+    ALLOWED_HOSTS.append(VERCEL_URL)
+    CSRF_TRUSTED_ORIGINS.append(f"https://{VERCEL_URL}")
+if not DEBUG:
+    ALLOWED_HOSTS.append(".vercel.app")
+    CSRF_TRUSTED_ORIGINS.append("https://*.vercel.app")
 
 # ─────────────────────────────────────────────────────────────
 # Frontend & email
