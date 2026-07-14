@@ -29,11 +29,8 @@ services:
       # Optional: your Vercel URL, so the admin "VIEW SITE" link works.
       - key: FRONTEND_URL
         sync: false
+      # DATABASE_URL points to a permanent Supabase Postgres (NOT a Render free
+      # DB, which expires after 30 days). Paste the Supabase *Session pooler*
+      # connection string (port 5432) in the Render dashboard when deploying.
       - key: DATABASE_URL
-        fromDatabase:
-          name: savoria-db
-          property: connectionString
-
-databases:
-  - name: savoria-db
-    plan: free
+        sync: false
